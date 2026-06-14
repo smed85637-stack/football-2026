@@ -785,6 +785,7 @@
             generateSquads();
         }
         ensureDataIntegrity();
+        recomputePlayerGoals();
         renderAll();
     }
 
@@ -838,7 +839,29 @@
             if (!Array.isArray(tournament.squads[team.id]) || tournament.squads[team.id].length === 0) {
                 tournament.squads[team.id] = buildDefaultSquad(team);
             }
+            tournament.squads[team.id].forEach(player => {
+                if (typeof player.goals === 'undefined') player.goals = 0;
+                if (typeof player.yellowCards === 'undefined') player.yellowCards = 0;
+                if (typeof player.redCards === 'undefined') player.redCards = 0;
+                if (typeof player.bestPlayerAwards === 'undefined') player.bestPlayerAwards = 0;
+            });
         });
+
+        const ensureMatchDefaults = (match) => {
+            if (!match) return;
+            if (!Array.isArray(match.goalScorers)) match.goalScorers = [];
+            if (!Array.isArray(match.yellowCards)) match.yellowCards = [];
+            if (!Array.isArray(match.redCards)) match.redCards = [];
+            if (typeof match.bestPlayer === 'undefined') match.bestPlayer = null;
+        };
+
+        (tournament.matches || []).forEach(ensureMatchDefaults);
+        const ko = tournament.knockoutMatches || {};
+        (ko.quarterFinals || []).forEach(ensureMatchDefaults);
+        (ko.semiFinals || []).forEach(ensureMatchDefaults);
+        if (ko.final) ensureMatchDefaults(ko.final);
+        if (ko.thirdPlace) ensureMatchDefaults(ko.thirdPlace);
+
         saveData();
     }
 
@@ -883,6 +906,50 @@
         return squad;
     }
 
+    function recomputePlayerGoals() {
+        Object.keys(tournament.squads || {}).forEach(teamId => {
+            (tournament.squads[teamId] || []).forEach(player => {
+                player.goals = 0;
+                player.yellowCards = 0;
+                player.redCards = 0;
+                player.bestPlayerAwards = 0;
+            });
+        });
+
+        const collectMatches = [];
+        if (Array.isArray(tournament.matches)) collectMatches.push(...tournament.matches);
+        const ko = tournament.knockoutMatches || {};
+        if (Array.isArray(ko.quarterFinals)) collectMatches.push(...ko.quarterFinals);
+        if (Array.isArray(ko.semiFinals)) collectMatches.push(...ko.semiFinals);
+        if (ko.final) collectMatches.push(ko.final);
+        if (ko.thirdPlace) collectMatches.push(ko.thirdPlace);
+
+        collectMatches.forEach(match => {
+            if (!match) return;
+            (match.goalScorers || []).forEach(gs => {
+                const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+                if (player) player.goals = (player.goals || 0) + 1;
+            });
+            (match.yellowCards || []).forEach(gs => {
+                const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+                if (player) player.yellowCards = (player.yellowCards || 0) + 1;
+            });
+            (match.redCards || []).forEach(gs => {
+                const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+                if (player) player.redCards = (player.redCards || 0) + 1;
+            });
+            if (match.bestPlayer && match.bestPlayer.teamId && match.bestPlayer.playerId) {
+                const player = tournament.squads[match.bestPlayer.teamId]?.find(p => p.id === match.bestPlayer.playerId);
+                if (player) player.bestPlayerAwards = (player.bestPlayerAwards || 0) + 1;
+            }
+        });
+    }
+
+    function refreshCurrentSquadView() {
+        const select = document.getElementById('squad-team-select');
+        if (select && select.value) showSquad(select.value);
+    }
+
     function resetTournament() {
         if (!requireAdmin()) return;
         if (confirm('هل أنت متأكد من إعادة تعيين البطولة؟ سيتم حذف جميع البيانات.')) {
@@ -898,6 +965,7 @@
             };
             generateGroupMatches();
             generateSquads();
+            recomputePlayerGoals();
             renderAll();
         }
     }
@@ -920,7 +988,10 @@
                         score2: null,
                         group: group,
                         played: false,
-                        goalScorers: []
+                        goalScorers: [],
+                        yellowCards: [],
+                        redCards: [],
+                        bestPlayer: null
                     });
                 }
             }
@@ -948,7 +1019,8 @@
                         goals: 0,
                         assists: 0,
                         yellowCards: 0,
-                        redCards: 0
+                        redCards: 0,
+                        bestPlayerAwards: 0
                     });
                     playerNum++;
                     nameIdx++;
@@ -967,6 +1039,7 @@
                     assists: 0,
                     yellowCards: 0,
                     redCards: 0,
+                    bestPlayerAwards: 0,
                     substitute: true
                 });
                 playerNum++;
@@ -1338,21 +1411,32 @@
                             💾 حفظ النتيجة
                         </button>
                         <button onclick="openGoalScorers(${match.id})" class="btn-primary px-4 py-1.5 rounded-lg text-xs font-bold">
-                            ⚽ الهدافين
+                            ⚽ الأحداث والبطاقات
                         </button>
                     </div>` : `
                     <div class="admin-lock-note rounded-xl px-3 py-2 text-center text-xs font-bold mt-3">
                         🔒 تعديل النتيجة والهدافين للمدير فقط
                     </div>`}
 
-                    ${match.goalScorers && match.goalScorers.length > 0 ? `
-                        <div class="mt-3 pt-3 border-t border-white/10">
+                    ${(match.goalScorers && match.goalScorers.length > 0) || (match.yellowCards && match.yellowCards.length > 0) || (match.redCards && match.redCards.length > 0) || match.bestPlayer ? `
+                        <div class="mt-3 pt-3 border-t border-white/10 space-y-2">
+                            ${match.goalScorers && match.goalScorers.length > 0 ? `
+                                <div class="flex flex-wrap gap-2 justify-center">
+                                    ${match.goalScorers.map(gs => {
+                                        const team = getTeam(gs.teamId);
+                                        const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+                                        return `<span class="text-xs bg-white/10 px-2 py-1 rounded-full">⚽ ${player?.name || 'لاعب'} (${team?.short})</span>`;
+                                    }).join('')}
+                                </div>
+                            ` : ''}
                             <div class="flex flex-wrap gap-2 justify-center">
-                                ${match.goalScorers.map(gs => {
-                                    const team = getTeam(gs.teamId);
-                                    const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
-                                    return `<span class="text-xs bg-white/10 px-2 py-1 rounded-full">⚽ ${player?.name || 'لاعب'} (${team?.short})</span>`;
-                                }).join('')}
+                                ${match.yellowCards && match.yellowCards.length > 0 ? `<span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">🟨 ${match.yellowCards.length}</span>` : ''}
+                                ${match.redCards && match.redCards.length > 0 ? `<span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">🟥 ${match.redCards.length}</span>` : ''}
+                                ${match.bestPlayer ? (() => {
+                                    const bpTeam = getTeam(match.bestPlayer.teamId);
+                                    const bpPlayer = tournament.squads[match.bestPlayer.teamId]?.find(p => p.id === match.bestPlayer.playerId);
+                                    return `<span class="text-xs bg-yellow-400/20 text-yellow-200 px-2 py-1 rounded-full">⭐ أفضل لاعب: ${bpPlayer?.name || 'لاعب'} (${bpTeam?.short || ''})</span>`;
+                                })() : ''}
                             </div>
                         </div>
                     ` : ''}
@@ -1387,10 +1471,13 @@
         match.score2 = parseInt(score2);
         match.played = true;
 
+        recomputePlayerGoals();
         saveData();
         renderHeroStats();
         renderMatches();
         renderGroups();
+        refreshCurrentSquadView();
+        renderScorers();
 
         if (isGroupStageComplete()) {
             generateKnockoutStage();
@@ -1403,65 +1490,122 @@
         const match = tournament.matches.find(m => m.id === matchId);
         if (!match) return;
 
+        if (!Array.isArray(match.goalScorers)) match.goalScorers = [];
+        if (!Array.isArray(match.yellowCards)) match.yellowCards = [];
+        if (!Array.isArray(match.redCards)) match.redCards = [];
+        if (typeof match.bestPlayer === 'undefined') match.bestPlayer = null;
+
         const team1 = getTeam(match.team1);
         const team2 = getTeam(match.team2);
         const squad1 = tournament.squads[match.team1] || [];
         const squad2 = tournament.squads[match.team2] || [];
 
+        const renderEventList = (items, icon, colorClass, removeFn) => {
+            if (!items || items.length === 0) return '<p class="text-gray-500 text-sm">لا توجد بيانات</p>';
+            return items.map((item, idx) => {
+                const team = getTeam(item.teamId);
+                const player = tournament.squads[item.teamId]?.find(p => p.id === item.playerId);
+                return `
+                    <div class="flex justify-between items-center bg-white/5 px-3 py-2 rounded-lg">
+                        <span class="text-sm ${colorClass}">${icon} ${player?.name || 'لاعب'} <span class="text-gray-400">(${team?.short || ''})</span></span>
+                        <button onclick="${removeFn}(${matchId}, ${idx})" class="text-red-400 hover:text-red-300 text-sm">✕</button>
+                    </div>`;
+            }).join('');
+        };
+
+        const bestPlayerName = match.bestPlayer
+            ? (() => {
+                const team = getTeam(match.bestPlayer.teamId);
+                const player = tournament.squads[match.bestPlayer.teamId]?.find(p => p.id === match.bestPlayer.playerId);
+                return player ? `⭐ ${player.name} (${team?.name || ''})` : 'غير محدد';
+            })()
+            : 'غير محدد';
+
         let html = `
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold gradient-text">⚽ تسجيل الأهداف</h3>
+                <h3 class="text-lg font-bold gradient-text">⚽ إدارة أحداث المباراة</h3>
                 <button onclick="closeGoalModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
             <p class="text-gray-400 text-sm mb-4">${team1.name} vs ${team2.name}</p>
-            
-            <div class="mb-4">
-                <h4 class="font-bold mb-2" style="color:${team1.color}">⚽ أهداف ${team1.name}</h4>
-                <select id="scorer-team1" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
-                    <option value="" class="bg-gray-800">اختر اللاعب...</option>
-                    ${squad1.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name} (${positions[p.position]})</option>`).join('')}
-                </select>
-                <button onclick="addGoalScorer(${matchId}, ${match.team1}, 'scorer-team1')" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold w-full">
-                    + إضافة هدف
-                </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card rounded-xl p-3">
+                    <h4 class="font-bold mb-2" style="color:${team1.color}">⚽ أهداف ${team1.name}</h4>
+                    <select id="scorer-team1" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                        <option value="" class="bg-gray-800">اختر اللاعب...</option>
+                        ${squad1.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name} (${positions[p.position]})</option>`).join('')}
+                    </select>
+                    <button onclick="addGoalScorer(${matchId}, ${match.team1}, 'scorer-team1')" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold w-full">+ إضافة هدف</button>
+                </div>
+                <div class="glass-card rounded-xl p-3">
+                    <h4 class="font-bold mb-2" style="color:${team2.color}">⚽ أهداف ${team2.name}</h4>
+                    <select id="scorer-team2" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                        <option value="" class="bg-gray-800">اختر اللاعب...</option>
+                        ${squad2.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name} (${positions[p.position]})</option>`).join('')}
+                    </select>
+                    <button onclick="addGoalScorer(${matchId}, ${match.team2}, 'scorer-team2')" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold w-full">+ إضافة هدف</button>
+                </div>
+
+                <div class="glass-card rounded-xl p-3">
+                    <h4 class="font-bold mb-2 text-yellow-300">🟨 بطاقة صفراء</h4>
+                    <select id="yellow-team1" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                        <option value="" class="bg-gray-800">${team1.name} - اختر اللاعب...</option>
+                        ${squad1.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name}</option>`).join('')}
+                    </select>
+                    <button onclick="addMatchCard(${matchId}, ${match.team1}, 'yellow-team1', 'yellowCards')" class="w-full px-4 py-1.5 rounded-lg text-xs font-bold" style="background:linear-gradient(135deg,#f59e0b,#facc15)">+ إضافة صفراء</button>
+                    <select id="yellow-team2" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none my-2">
+                        <option value="" class="bg-gray-800">${team2.name} - اختر اللاعب...</option>
+                        ${squad2.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name}</option>`).join('')}
+                    </select>
+                    <button onclick="addMatchCard(${matchId}, ${match.team2}, 'yellow-team2', 'yellowCards')" class="w-full px-4 py-1.5 rounded-lg text-xs font-bold" style="background:linear-gradient(135deg,#f59e0b,#facc15)">+ إضافة صفراء</button>
+                </div>
+
+                <div class="glass-card rounded-xl p-3">
+                    <h4 class="font-bold mb-2 text-red-300">🟥 بطاقة حمراء</h4>
+                    <select id="red-team1" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                        <option value="" class="bg-gray-800">${team1.name} - اختر اللاعب...</option>
+                        ${squad1.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name}</option>`).join('')}
+                    </select>
+                    <button onclick="addMatchCard(${matchId}, ${match.team1}, 'red-team1', 'redCards')" class="w-full px-4 py-1.5 rounded-lg text-xs font-bold" style="background:linear-gradient(135deg,#ef4444,#dc2626)">+ إضافة حمراء</button>
+                    <select id="red-team2" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none my-2">
+                        <option value="" class="bg-gray-800">${team2.name} - اختر اللاعب...</option>
+                        ${squad2.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name}</option>`).join('')}
+                    </select>
+                    <button onclick="addMatchCard(${matchId}, ${match.team2}, 'red-team2', 'redCards')" class="w-full px-4 py-1.5 rounded-lg text-xs font-bold" style="background:linear-gradient(135deg,#ef4444,#dc2626)">+ إضافة حمراء</button>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h4 class="font-bold mb-2" style="color:${team2.color}">⚽ أهداف ${team2.name}</h4>
-                <select id="scorer-team2" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
-                    <option value="" class="bg-gray-800">اختر اللاعب...</option>
-                    ${squad2.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name} (${positions[p.position]})</option>`).join('')}
+            <div class="glass-card rounded-xl p-3 mt-4">
+                <h4 class="font-bold mb-2 text-yellow-200">⭐ أفضل لاعب في المباراة</h4>
+                <select id="best-player-select" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                    <option value="" class="bg-gray-800">اختر أفضل لاعب...</option>
+                    ${squad1.map(p => `<option value="${match.team1}|${p.id}" class="bg-gray-800">${p.name} (${team1.short})</option>`).join('')}
+                    ${squad2.map(p => `<option value="${match.team2}|${p.id}" class="bg-gray-800">${p.name} (${team2.short})</option>`).join('')}
                 </select>
-                <button onclick="addGoalScorer(${matchId}, ${match.team2}, 'scorer-team2')" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold w-full">
-                    + إضافة هدف
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="saveBestPlayer(${matchId})" class="btn-primary flex-1 px-4 py-2 rounded-lg text-xs font-bold">حفظ أفضل لاعب</button>
+                    <button onclick="clearBestPlayer(${matchId})" class="btn-danger px-4 py-2 rounded-lg text-xs font-bold">حذف</button>
+                </div>
+                <p class="text-sm text-gray-300 mt-2">الحالي: ${bestPlayerName}</p>
             </div>
 
-            <div class="border-t border-white/10 pt-3">
+            <div class="border-t border-white/10 pt-3 mt-4">
                 <h4 class="font-bold mb-2 text-sm text-gray-300">الأهداف المسجلة:</h4>
-                <div id="goal-list" class="space-y-1">`;
+                <div id="goal-list" class="space-y-1 mb-3">${renderEventList(match.goalScorers, '⚽', 'text-white', 'removeGoalScorer')}</div>
 
-        if (match.goalScorers && match.goalScorers.length > 0) {
-            match.goalScorers.forEach((gs, idx) => {
-                const team = getTeam(gs.teamId);
-                const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
-                html += `
-                    <div class="flex justify-between items-center bg-white/5 px-3 py-2 rounded-lg">
-                        <span class="text-sm">⚽ ${player?.name || 'لاعب'} <span class="text-gray-400">(${team?.short})</span></span>
-                        <button onclick="removeGoalScorer(${matchId}, ${idx})" class="text-red-400 hover:text-red-300 text-sm">✕</button>
-                    </div>`;
-            });
-        } else {
-            html += '<p class="text-gray-500 text-sm">لا توجد أهداف مسجلة</p>';
-        }
+                <h4 class="font-bold mb-2 text-sm text-yellow-300">البطاقات الصفراء:</h4>
+                <div class="space-y-1 mb-3">${renderEventList(match.yellowCards, '🟨', 'text-yellow-300', 'removeYellowCard')}</div>
 
-        html += `</div></div>`;
+                <h4 class="font-bold mb-2 text-sm text-red-300">البطاقات الحمراء:</h4>
+                <div class="space-y-1">${renderEventList(match.redCards, '🟥', 'text-red-300', 'removeRedCard')}</div>
+            </div>`;
 
         document.getElementById('goal-modal-body').innerHTML = html;
         document.getElementById('goal-modal').classList.remove('hidden');
     }
 
     function addGoalScorer(matchId, teamId, selectId) {
+
         if (!requireAdmin()) return;
         const select = document.getElementById(selectId);
         const playerId = select.value;
@@ -1472,12 +1616,10 @@
 
         match.goalScorers.push({ teamId, playerId });
 
-        // Update player goals
-        const player = tournament.squads[teamId]?.find(p => p.id === playerId);
-        if (player) player.goals++;
-
+        recomputePlayerGoals();
         saveData();
         openGoalScorers(matchId);
+        refreshCurrentSquadView();
         renderScorers();
     }
 
@@ -1486,18 +1628,91 @@
         const match = tournament.matches.find(m => m.id === matchId);
         if (!match.goalScorers) return;
 
-        const gs = match.goalScorers[idx];
-        const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
-        if (player && player.goals > 0) player.goals--;
-
         match.goalScorers.splice(idx, 1);
+        recomputePlayerGoals();
         saveData();
         openGoalScorers(matchId);
+        refreshCurrentSquadView();
         renderScorers();
+    }
+
+    function addMatchCard(matchId, teamId, selectId, cardType) {
+        if (!requireAdmin()) return;
+        const select = document.getElementById(selectId);
+        const playerId = select.value;
+        if (!playerId) return;
+
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match[cardType]) match[cardType] = [];
+        match[cardType].push({ teamId, playerId });
+
+        recomputePlayerGoals();
+        saveData();
+        openGoalScorers(matchId);
+        refreshCurrentSquadView();
+        renderScorers();
+        renderMatches();
+    }
+
+    function removeYellowCard(matchId, idx) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match || !match.yellowCards) return;
+        match.yellowCards.splice(idx, 1);
+        recomputePlayerGoals();
+        saveData();
+        openGoalScorers(matchId);
+        refreshCurrentSquadView();
+        renderScorers();
+        renderMatches();
+    }
+
+    function removeRedCard(matchId, idx) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match || !match.redCards) return;
+        match.redCards.splice(idx, 1);
+        recomputePlayerGoals();
+        saveData();
+        openGoalScorers(matchId);
+        refreshCurrentSquadView();
+        renderScorers();
+        renderMatches();
+    }
+
+    function saveBestPlayer(matchId) {
+        if (!requireAdmin()) return;
+        const value = document.getElementById('best-player-select').value;
+        if (!value) {
+            alert('اختر اللاعب أولاً');
+            return;
+        }
+        const [teamId, playerId] = value.split('|');
+        const match = tournament.matches.find(m => m.id === matchId);
+        match.bestPlayer = { teamId: parseInt(teamId), playerId };
+        recomputePlayerGoals();
+        saveData();
+        openGoalScorers(matchId);
+        refreshCurrentSquadView();
+        renderScorers();
+        renderMatches();
+    }
+
+    function clearBestPlayer(matchId) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        match.bestPlayer = null;
+        recomputePlayerGoals();
+        saveData();
+        openGoalScorers(matchId);
+        refreshCurrentSquadView();
+        renderScorers();
+        renderMatches();
     }
 
     function closeGoalModal() {
         document.getElementById('goal-modal').classList.add('hidden');
+        refreshCurrentSquadView();
         renderMatches();
     }
 
@@ -1819,6 +2034,9 @@
                                 <th class="py-2 px-3 text-right">الاسم</th>
                                 <th class="py-2 px-3 text-center">المركز</th>
                                 <th class="py-2 px-3 text-center">⚽</th>
+                                <th class="py-2 px-3 text-center">🟨</th>
+                                <th class="py-2 px-3 text-center">🟥</th>
+                                <th class="py-2 px-3 text-center">⭐</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1830,6 +2048,9 @@
                                         <span class="px-2 py-0.5 rounded-full text-xs font-bold position-${p.position.toLowerCase()}">${positions[p.position]}</span>
                                     </td>
                                     <td class="py-2.5 px-3 text-center font-bold ${p.goals > 0 ? 'text-yellow-400' : 'text-gray-500'}">${p.goals}</td>
+                                    <td class="py-2.5 px-3 text-center font-bold ${p.yellowCards > 0 ? 'text-yellow-300' : 'text-gray-500'}">${p.yellowCards || 0}</td>
+                                    <td class="py-2.5 px-3 text-center font-bold ${p.redCards > 0 ? 'text-red-400' : 'text-gray-500'}">${p.redCards || 0}</td>
+                                    <td class="py-2.5 px-3 text-center font-bold ${p.bestPlayerAwards > 0 ? 'text-yellow-200' : 'text-gray-500'}">${p.bestPlayerAwards || 0}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1850,6 +2071,9 @@
                                     <th class="py-2 px-3 text-right">الاسم</th>
                                     <th class="py-2 px-3 text-center">المركز</th>
                                     <th class="py-2 px-3 text-center">⚽</th>
+                                    <th class="py-2 px-3 text-center">🟨</th>
+                                    <th class="py-2 px-3 text-center">🟥</th>
+                                    <th class="py-2 px-3 text-center">⭐</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1861,6 +2085,9 @@
                                             <span class="px-2 py-0.5 rounded-full text-xs font-bold position-${p.position.toLowerCase()}">${positions[p.position]}</span>
                                         </td>
                                         <td class="py-2.5 px-3 text-center font-bold ${p.goals > 0 ? 'text-yellow-400' : 'text-gray-500'}">${p.goals}</td>
+                                        <td class="py-2.5 px-3 text-center font-bold ${p.yellowCards > 0 ? 'text-yellow-300' : 'text-gray-500'}">${p.yellowCards || 0}</td>
+                                        <td class="py-2.5 px-3 text-center font-bold ${p.redCards > 0 ? 'text-red-400' : 'text-gray-500'}">${p.redCards || 0}</td>
+                                        <td class="py-2.5 px-3 text-center font-bold ${p.bestPlayerAwards > 0 ? 'text-yellow-200' : 'text-gray-500'}">${p.bestPlayerAwards || 0}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -1875,6 +2102,7 @@
     // ============ TOP SCORERS ============
     function renderScorers() {
         const container = document.getElementById('scorers-content');
+        recomputePlayerGoals();
         
         // Collect all players with goals
         const allScorers = [];
