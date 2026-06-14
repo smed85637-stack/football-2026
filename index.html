@@ -634,12 +634,19 @@
 
         <!-- Matches Tab -->
         <div id="content-matches" class="tab-content hidden fade-in">
-            <div class="mb-4 flex gap-2 flex-wrap">
-                <button onclick="filterMatches('all')" class="match-filter btn-primary px-4 py-2 rounded-xl text-sm font-bold">الكل</button>
-                <button onclick="filterMatches('A')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة A</button>
-                <button onclick="filterMatches('B')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة B</button>
-                <button onclick="filterMatches('C')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة C</button>
-                <button onclick="filterMatches('D')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة D</button>
+            <div class="glass-card rounded-2xl p-3 mb-4">
+                <div class="flex gap-2 flex-wrap mb-3">
+                    <button onclick="filterMatches('all')" data-filter="all" class="match-filter btn-primary px-4 py-2 rounded-xl text-sm font-bold">كل المباريات</button>
+                    <button onclick="filterMatches('today')" data-filter="today" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">📅 اليوم</button>
+                    <button onclick="filterMatches('tomorrow')" data-filter="tomorrow" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">🌙 غدًا</button>
+                    <button onclick="filterMatches('live')" data-filter="live" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">🔴 مباشرة الآن</button>
+                </div>
+                <div class="flex gap-2 flex-wrap border-t border-white/10 pt-3">
+                    <button onclick="filterMatches('A')" data-filter="A" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة A</button>
+                    <button onclick="filterMatches('B')" data-filter="B" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة B</button>
+                    <button onclick="filterMatches('C')" data-filter="C" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة C</button>
+                    <button onclick="filterMatches('D')" data-filter="D" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة D</button>
+                </div>
             </div>
             <div id="matches-list" class="space-y-4"></div>
         </div>
@@ -777,6 +784,9 @@
         ads: JSON.parse(JSON.stringify(defaultAds))
     };
 
+
+    let currentMatchFilter = 'all';
+
     // ============ INITIALIZATION ============
     function init() {
         loadData();
@@ -847,20 +857,22 @@
             });
         });
 
-        const ensureMatchDefaults = (match) => {
+        const ensureMatchDefaults = (match, idx = 0) => {
             if (!match) return;
             if (!Array.isArray(match.goalScorers)) match.goalScorers = [];
             if (!Array.isArray(match.yellowCards)) match.yellowCards = [];
             if (!Array.isArray(match.redCards)) match.redCards = [];
             if (typeof match.bestPlayer === 'undefined') match.bestPlayer = null;
+            if (!match.matchDate) match.matchDate = getDefaultMatchDate(idx);
+            if (!match.matchTime) match.matchTime = getDefaultMatchTime(idx);
         };
 
-        (tournament.matches || []).forEach(ensureMatchDefaults);
+        (tournament.matches || []).forEach((match, idx) => ensureMatchDefaults(match, idx));
         const ko = tournament.knockoutMatches || {};
-        (ko.quarterFinals || []).forEach(ensureMatchDefaults);
-        (ko.semiFinals || []).forEach(ensureMatchDefaults);
-        if (ko.final) ensureMatchDefaults(ko.final);
-        if (ko.thirdPlace) ensureMatchDefaults(ko.thirdPlace);
+        (ko.quarterFinals || []).forEach((match, idx) => ensureMatchDefaults(match, idx));
+        (ko.semiFinals || []).forEach((match, idx) => ensureMatchDefaults(match, idx + 4));
+        if (ko.final) ensureMatchDefaults(ko.final, 6);
+        if (ko.thirdPlace) ensureMatchDefaults(ko.thirdPlace, 7);
 
         saveData();
     }
@@ -970,6 +982,72 @@
         }
     }
 
+    function padNumber(num) {
+        return String(num).padStart(2, '0');
+    }
+
+    function getDefaultMatchDate(index) {
+        const base = new Date(2026, 5, 14);
+        base.setDate(base.getDate() + Math.floor(index / 3));
+        return `${base.getFullYear()}-${padNumber(base.getMonth() + 1)}-${padNumber(base.getDate())}`;
+    }
+
+    function getDefaultMatchTime(index) {
+        const slots = ['16:00', '18:00', '20:00'];
+        return slots[index % slots.length];
+    }
+
+    function formatArabicDate(dateStr) {
+        if (!dateStr) return 'بدون تاريخ';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function getLocalDateString(date = new Date()) {
+        return `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(date.getDate())}`;
+    }
+
+    function addDaysToDateString(dateStr, days) {
+        const parts = (dateStr || getLocalDateString()).split('-').map(Number);
+        const date = new Date(parts[0], parts[1] - 1, parts[2]);
+        date.setDate(date.getDate() + days);
+        return getLocalDateString(date);
+    }
+
+    function getMatchDateTime(match) {
+        if (!match.matchDate || !match.matchTime) return null;
+        const [year, month, day] = match.matchDate.split('-').map(Number);
+        const [hour, minute] = match.matchTime.split(':').map(Number);
+        if (!year || !month || !day || Number.isNaN(hour) || Number.isNaN(minute)) return null;
+        return new Date(year, month - 1, day, hour, minute, 0, 0);
+    }
+
+    function isMatchLiveNow(match) {
+        const start = getMatchDateTime(match);
+        if (!start || match.played) return false;
+        const now = new Date();
+        const end = new Date(start.getTime() + 120 * 60 * 1000);
+        return now >= start && now <= end;
+    }
+
+    function getMatchStatusLabel(match) {
+        if (isMatchLiveNow(match)) return '<span class="bg-red-500/20 text-red-300 px-3 py-1 rounded-full text-xs font-black animate-pulse">🔴 مباشر الآن</span>';
+        if (match.played) return '<span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs font-black">✅ انتهت</span>';
+        const start = getMatchDateTime(match);
+        if (start && start < new Date()) return '<span class="bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full text-xs font-black">⏳ لم تُحفظ النتيجة</span>';
+        return '<span class="bg-cyan-500/20 text-cyan-200 px-3 py-1 rounded-full text-xs font-black">⏰ قادمة</span>';
+    }
+
+    function sortMatchesBySchedule(matches) {
+        return [...matches].sort((a, b) => {
+            const dateA = `${a.matchDate || ''} ${a.matchTime || ''}`.trim();
+            const dateB = `${b.matchDate || ''} ${b.matchTime || ''}`.trim();
+            if (dateA !== dateB) return dateA.localeCompare(dateB);
+            return (a.id || 0) - (b.id || 0);
+        });
+    }
+
     // ============ GENERATE DATA ============
     function generateGroupMatches() {
         tournament.matches = [];
@@ -980,6 +1058,7 @@
             const groupTeams = tournament.teams.filter(t => t.group === group);
             for (let i = 0; i < groupTeams.length; i++) {
                 for (let j = i + 1; j < groupTeams.length; j++) {
+                    const scheduleIndex = matchId - 1;
                     tournament.matches.push({
                         id: matchId++,
                         team1: groupTeams[i].id,
@@ -988,6 +1067,8 @@
                         score2: null,
                         group: group,
                         played: false,
+                        matchDate: getDefaultMatchDate(scheduleIndex),
+                        matchTime: getDefaultMatchTime(scheduleIndex),
                         goalScorers: [],
                         yellowCards: [],
                         redCards: [],
@@ -1266,7 +1347,7 @@
         renderAdminStatus();
         renderAds();
         renderGroups();
-        renderMatches();
+        renderMatches(currentMatchFilter);
         renderKnockout();
         renderSquadSelect();
         renderScorers();
@@ -1287,7 +1368,7 @@
 
         // Re-render content
         if (tab === 'groups') renderGroups();
-        if (tab === 'matches') renderMatches();
+        if (tab === 'matches') { renderMatches(currentMatchFilter); filterMatches(currentMatchFilter); }
         if (tab === 'knockout') renderKnockout();
         if (tab === 'scorers') renderScorers();
         if (tab === 'admin') renderAdminPanel();
@@ -1365,26 +1446,68 @@
     // ============ MATCHES RENDERING ============
     function renderMatches(filter = 'all') {
         const container = document.getElementById('matches-list');
+        currentMatchFilter = filter || 'all';
         let matches = tournament.matches.filter(m => m.group);
+        const today = getLocalDateString();
+        const tomorrow = addDaysToDateString(today, 1);
 
-        if (filter !== 'all') {
+        if (filter === 'today') {
+            matches = matches.filter(m => m.matchDate === today);
+        } else if (filter === 'tomorrow') {
+            matches = matches.filter(m => m.matchDate === tomorrow);
+        } else if (filter === 'live') {
+            matches = matches.filter(m => isMatchLiveNow(m));
+        } else if (filter !== 'all') {
             matches = matches.filter(m => m.group === filter);
         }
 
+        matches = sortMatchesBySchedule(matches);
+
+        if (matches.length === 0) {
+            const message = filter === 'today' ? 'لا توجد مباريات اليوم' : filter === 'tomorrow' ? 'لا توجد مباريات غدًا' : filter === 'live' ? 'لا توجد مباريات مباشرة الآن' : 'لا توجد مباريات حالياً';
+            container.innerHTML = `<div class="glass-card rounded-2xl p-8 text-center text-gray-400"><div class="text-5xl mb-3">🏟️</div><p class="font-bold">${message}</p></div>`;
+            return;
+        }
+
         let html = '';
-        let currentGroup = '';
+        let currentDate = '';
+        const dateCounts = {};
+        matches.forEach(match => {
+            const key = match.matchDate || 'بدون تاريخ';
+            dateCounts[key] = (dateCounts[key] || 0) + 1;
+        });
 
         matches.forEach(match => {
             const team1 = getTeam(match.team1);
             const team2 = getTeam(match.team2);
+            const dateKey = match.matchDate || 'بدون تاريخ';
 
-            if (match.group !== currentGroup) {
-                currentGroup = match.group;
-                html += `<h3 class="text-lg font-bold text-gray-300 mt-4 mb-2">المجموعة ${currentGroup}</h3>`;
+            if (dateKey !== currentDate) {
+                currentDate = dateKey;
+                html += `
+                    <div class="glass-card rounded-2xl px-4 py-3 mt-5 mb-3 border border-cyan-400/20">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-black text-white">📅 ${formatArabicDate(dateKey)}</h3>
+                                <p class="text-xs text-gray-400">${dateCounts[dateKey]} مباراة في هذا اليوم</p>
+                            </div>
+                            <div class="bg-white/10 px-3 py-1 rounded-full text-xs font-bold text-cyan-200">جدول اليوم</div>
+                        </div>
+                    </div>`;
             }
 
             html += `
                 <div class="match-card p-4 ${match.played ? 'border-green-500/20' : ''}">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="bg-white/10 px-3 py-1 rounded-full text-xs font-bold">المجموعة ${match.group}</span>
+                        <div class="flex items-center gap-2 text-xs text-gray-300 flex-wrap justify-end">
+                            ${getMatchStatusLabel(match)}
+                            <span>🕒 ${match.matchTime || '--:--'}</span>
+                            <span class="text-gray-500">•</span>
+                            <span>${formatArabicDate(match.matchDate)}</span>
+                        </div>
+                    </div>
+
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex-1 flex items-center justify-end gap-2">
                             <span class="font-bold text-sm md:text-base">${team1.name}</span>
@@ -1404,19 +1527,18 @@
                             <span class="font-bold text-sm md:text-base">${team2.name}</span>
                         </div>
                     </div>
-                    
+
                     ${isAdmin() ? `
-                    <div class="flex items-center justify-center gap-2 mt-3">
-                        <button onclick="saveMatch(${match.id})" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold">
-                            💾 حفظ النتيجة
-                        </button>
-                        <button onclick="openGoalScorers(${match.id})" class="btn-primary px-4 py-1.5 rounded-lg text-xs font-bold">
-                            ⚽ الأحداث والبطاقات
-                        </button>
-                    </div>` : `
-                    <div class="admin-lock-note rounded-xl px-3 py-2 text-center text-xs font-bold mt-3">
-                        🔒 تعديل النتيجة والهدافين للمدير فقط
-                    </div>`}
+                        <div class="flex items-center justify-center gap-2 mt-3 flex-wrap">
+                            <button onclick="saveMatch(${match.id})" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold">💾 حفظ النتيجة</button>
+                            <button onclick="openGoalScorers(${match.id})" class="btn-primary px-4 py-1.5 rounded-lg text-xs font-bold">⚽ الأحداث والبطاقات</button>
+                        </div>
+                        <div class="admin-lock-note rounded-xl px-3 py-2 text-center text-xs font-bold mt-3">
+                            📅 تعديل تاريخ ووقت المباراة موجود فقط في صفحة المدير
+                        </div>` : `
+                        <div class="admin-lock-note rounded-xl px-3 py-2 text-center text-xs font-bold mt-3">
+                            🔒 تعديل النتيجة والهدافين للمدير فقط
+                        </div>`}
 
                     ${(match.goalScorers && match.goalScorers.length > 0) || (match.yellowCards && match.yellowCards.length > 0) || (match.redCards && match.redCards.length > 0) || match.bestPlayer ? `
                         <div class="mt-3 pt-3 border-t border-white/10 space-y-2">
@@ -1447,13 +1569,59 @@
     }
 
     function filterMatches(filter) {
+        currentMatchFilter = filter || 'all';
         document.querySelectorAll('.match-filter').forEach(btn => {
-            btn.classList.remove('tab-active');
+            btn.classList.remove('tab-active', 'btn-primary');
             btn.classList.add('glass-card');
+            if (btn.dataset.filter === currentMatchFilter) {
+                btn.classList.add('tab-active');
+                btn.classList.remove('glass-card');
+            }
         });
-        event.target.classList.add('tab-active');
-        event.target.classList.remove('glass-card');
-        renderMatches(filter);
+        renderMatches(currentMatchFilter);
+    }
+
+    function saveAdminMatchSchedule(matchId, silent = false) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match) return;
+        const dateValue = document.getElementById(`admin-match-date-${matchId}`)?.value;
+        const timeValue = document.getElementById(`admin-match-time-${matchId}`)?.value;
+        if (dateValue) match.matchDate = dateValue;
+        if (timeValue) match.matchTime = timeValue;
+        saveData();
+        renderMatches(currentMatchFilter);
+        if (!silent) {
+            renderAdminPanel();
+            alert('تم حفظ موعد المباراة');
+        }
+    }
+
+    function saveAllAdminMatchSchedules() {
+        if (!requireAdmin()) return;
+        tournament.matches.filter(m => m.group).forEach(match => {
+            const dateValue = document.getElementById(`admin-match-date-${match.id}`)?.value;
+            const timeValue = document.getElementById(`admin-match-time-${match.id}`)?.value;
+            if (dateValue) match.matchDate = dateValue;
+            if (timeValue) match.matchTime = timeValue;
+        });
+        saveData();
+        renderMatches(currentMatchFilter);
+        renderAdminPanel();
+        alert('تم حفظ كل مواعيد المباريات');
+    }
+
+    function saveMatchSchedule(matchId) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match) return;
+        const dateValue = document.getElementById(`match-date-${matchId}`)?.value || document.getElementById(`admin-match-date-${matchId}`)?.value;
+        const timeValue = document.getElementById(`match-time-${matchId}`)?.value || document.getElementById(`admin-match-time-${matchId}`)?.value;
+        if (dateValue) match.matchDate = dateValue;
+        if (timeValue) match.matchTime = timeValue;
+        saveData();
+        renderMatches(currentMatchFilter);
+        alert('تم حفظ موعد المباراة');
     }
 
     function saveMatch(matchId) {
@@ -1474,7 +1642,7 @@
         recomputePlayerGoals();
         saveData();
         renderHeroStats();
-        renderMatches();
+        renderMatches(currentMatchFilter);
         renderGroups();
         refreshCurrentSquadView();
         renderScorers();
@@ -1651,7 +1819,7 @@
         openGoalScorers(matchId);
         refreshCurrentSquadView();
         renderScorers();
-        renderMatches();
+        renderMatches(currentMatchFilter);
     }
 
     function removeYellowCard(matchId, idx) {
@@ -1664,7 +1832,7 @@
         openGoalScorers(matchId);
         refreshCurrentSquadView();
         renderScorers();
-        renderMatches();
+        renderMatches(currentMatchFilter);
     }
 
     function removeRedCard(matchId, idx) {
@@ -1677,7 +1845,7 @@
         openGoalScorers(matchId);
         refreshCurrentSquadView();
         renderScorers();
-        renderMatches();
+        renderMatches(currentMatchFilter);
     }
 
     function saveBestPlayer(matchId) {
@@ -1695,7 +1863,7 @@
         openGoalScorers(matchId);
         refreshCurrentSquadView();
         renderScorers();
-        renderMatches();
+        renderMatches(currentMatchFilter);
     }
 
     function clearBestPlayer(matchId) {
@@ -1707,13 +1875,13 @@
         openGoalScorers(matchId);
         refreshCurrentSquadView();
         renderScorers();
-        renderMatches();
+        renderMatches(currentMatchFilter);
     }
 
     function closeGoalModal() {
         document.getElementById('goal-modal').classList.add('hidden');
         refreshCurrentSquadView();
-        renderMatches();
+        renderMatches(currentMatchFilter);
     }
 
     // ============ KNOCKOUT STAGE ============
@@ -2249,6 +2417,51 @@
         showTab('groups');
     }
 
+    function renderAdminMatchSchedule() {
+        const matches = sortMatchesBySchedule(tournament.matches.filter(m => m.group));
+        if (matches.length === 0) {
+            return '<div class="p-6 text-center text-gray-400">لا توجد مباريات. اضغط إعادة إنشاء المباريات.</div>';
+        }
+        return `
+            <div class="overflow-x-auto p-4">
+                <table class="w-full text-sm min-w-[900px]">
+                    <thead>
+                        <tr class="text-gray-400 border-b border-white/10">
+                            <th class="py-3 px-2 text-right">#</th>
+                            <th class="py-3 px-2 text-right">المجموعة</th>
+                            <th class="py-3 px-2 text-right">المباراة</th>
+                            <th class="py-3 px-2 text-center">التاريخ</th>
+                            <th class="py-3 px-2 text-center">الوقت</th>
+                            <th class="py-3 px-2 text-center">الحالة</th>
+                            <th class="py-3 px-2 text-center">حفظ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${matches.map((match, idx) => {
+                            const team1 = getTeam(match.team1);
+                            const team2 = getTeam(match.team2);
+                            return `
+                                <tr class="border-b border-white/5">
+                                    <td class="py-3 px-2 font-bold text-gray-400">${idx + 1}</td>
+                                    <td class="py-3 px-2"><span class="bg-white/10 px-3 py-1 rounded-full font-bold">${match.group}</span></td>
+                                    <td class="py-3 px-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="font-bold">${team1?.name || ''}</span>
+                                            <span class="text-gray-500">vs</span>
+                                            <span class="font-bold">${team2?.name || ''}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-2"><input type="date" id="admin-match-date-${match.id}" value="${match.matchDate || ''}" class="admin-input"></td>
+                                    <td class="py-3 px-2"><input type="time" id="admin-match-time-${match.id}" value="${match.matchTime || ''}" class="admin-input"></td>
+                                    <td class="py-3 px-2 text-center">${getMatchStatusLabel(match)}</td>
+                                    <td class="py-3 px-2 text-center"><button onclick="saveAdminMatchSchedule(${match.id})" class="btn-success px-4 py-2 rounded-xl text-xs font-bold">💾 حفظ</button></td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    }
+
     function renderAdminPanel() {
         const container = document.getElementById('admin-content');
         if (!container) return;
@@ -2278,7 +2491,8 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
                 <div>
                     <h3 class="text-2xl md:text-3xl font-black gradient-gold">👑 لوحة تحكم المدير</h3>
-                    <p class="text-gray-400 text-sm mt-1">تعديل الأندية، أسماء التشكيلات، اللاعبين، النتائج، الإعلان، وملف PDF.</p>
+                    <p class="text-gray-400 text-sm mt-1">تعديل الأندية، التشكيلات، اللاعبين، النتائج، مواعيد المباريات، الإعلان، وملف PDF.</p>
+                    <p class="text-yellow-200 text-sm mt-2">ملاحظة: تحديد التاريخ والوقت من صفحة المدير فقط، والبطاقات وأفضل لاعب من زر الأحداث والبطاقات.</p>
                 </div>
                 <button onclick="logoutAdmin()" class="btn-danger px-5 py-2.5 rounded-2xl font-bold">خروج المدير ✕</button>
             </div>
@@ -2289,6 +2503,17 @@
                 <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">⚽</div><p class="text-2xl font-black">${tournament.matches.filter(m => m.played).length}</p><p class="text-xs text-gray-400">نتائج محفوظة</p></div>
                 <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">📢</div><p class="text-2xl font-black">${(tournament.ads || []).filter(a => a.active !== false).length}</p><p class="text-xs text-gray-400">إعلان</p></div>
                 <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">🔐</div><p class="text-xl font-black">نشط</p><p class="text-xs text-gray-400">صلاحية المدير</p></div>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden mb-6">
+                <div class="px-5 py-4 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <h4 class="text-xl font-black">📅 تحديد تاريخ ووقت المباريات</h4>
+                        <p class="text-gray-400 text-sm">هذه الخانة خاصة بالمدير فقط: اختر المباراة وحدد اليوم والوقت، ثم اضغط حفظ.</p>
+                    </div>
+                    <button onclick="saveAllAdminMatchSchedules()" class="btn-success px-4 py-2 rounded-xl text-sm font-bold">💾 حفظ كل المواعيد</button>
+                </div>
+                ${renderAdminMatchSchedule()}
             </div>
 
             <div class="glass-card rounded-3xl overflow-hidden mb-6">
@@ -2461,7 +2686,7 @@
         tournament.matches = [];
         tournament.knockoutMatches = { quarterFinals: [], semiFinals: [], final: null, thirdPlace: null };
         Object.keys(tournament.squads).forEach(teamId => {
-            tournament.squads[teamId].forEach(player => { player.goals = 0; });
+            tournament.squads[teamId].forEach(player => { player.goals = 0; player.yellowCards = 0; player.redCards = 0; player.bestPlayerAwards = 0; });
         });
         generateGroupMatches();
         saveData();
@@ -2493,15 +2718,21 @@
                     <button onclick="saveAdminSquad(${team.id})" class="btn-success w-full rounded-2xl py-3 font-black">💾 حفظ التشكيلة</button>
                 </div>
             </div>
+            <div class="admin-lock-note rounded-2xl p-3 text-sm mb-4 text-center">
+                🟨🟥 البطاقات و ⭐ أفضل لاعب تُضاف من تبويب <b>⚽ المباريات</b> ثم زر <b>⚽ الأحداث والبطاقات</b> داخل كل مباراة. هنا تظهر الأرقام فقط للتشكيلة.
+            </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm min-w-[760px]">
+                <table class="w-full text-sm min-w-[920px]">
                     <thead>
                         <tr class="text-gray-400 border-b border-white/10">
                             <th class="py-3 px-2 text-right">الرقم</th>
                             <th class="py-3 px-2 text-right">اسم اللاعب</th>
                             <th class="py-3 px-2 text-center">المركز</th>
                             <th class="py-3 px-2 text-center">النوع</th>
-                            <th class="py-3 px-2 text-center">أهداف</th>
+                            <th class="py-3 px-2 text-center">⚽ أهداف</th>
+                            <th class="py-3 px-2 text-center">🟨 صفراء</th>
+                            <th class="py-3 px-2 text-center">🟥 حمراء</th>
+                            <th class="py-3 px-2 text-center">⭐ أفضل لاعب</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2521,6 +2752,9 @@
                                     </select>
                                 </td>
                                 <td class="py-2 px-2 text-center font-black ${player.goals > 0 ? 'text-yellow-400' : 'text-gray-500'}">${player.goals || 0}</td>
+                                <td class="py-2 px-2 text-center font-black ${player.yellowCards > 0 ? 'text-yellow-300' : 'text-gray-500'}">${player.yellowCards || 0}</td>
+                                <td class="py-2 px-2 text-center font-black ${player.redCards > 0 ? 'text-red-400' : 'text-gray-500'}">${player.redCards || 0}</td>
+                                <td class="py-2 px-2 text-center font-black ${player.bestPlayerAwards > 0 ? 'text-yellow-200' : 'text-gray-500'}">${player.bestPlayerAwards || 0}</td>
                             </tr>
                         `).join('')}
                     </tbody>
