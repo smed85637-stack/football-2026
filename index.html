@@ -906,6 +906,106 @@
     }
 }
 
+    
+/* ============ RESTORE ORIGINAL DARK COLORS ON MOBILE ============ */
+@media (max-width: 768px) {
+    body {
+        background:
+            radial-gradient(circle at 20% 0%, rgba(102,126,234,.18), transparent 30%),
+            radial-gradient(circle at 85% 8%, rgba(118,75,162,.22), transparent 32%),
+            linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
+        color: #ffffff !important;
+    }
+
+    body::before {
+        background: transparent !important;
+    }
+
+    header.glass {
+        background:
+            linear-gradient(135deg, rgba(15,12,41,.94), rgba(48,43,99,.86), rgba(36,36,62,.94)) !important;
+        border-bottom: 1px solid rgba(255,255,255,.12) !important;
+    }
+
+    .hero-banner {
+        background:
+            radial-gradient(circle at 16% 15%, rgba(240,147,251,.20), transparent 28%),
+            radial-gradient(circle at 86% 8%, rgba(102,126,234,.24), transparent 30%),
+            linear-gradient(135deg, rgba(15,12,41,.96), rgba(48,43,99,.92), rgba(36,36,62,.98)) !important;
+        border: 1px solid rgba(255,255,255,.14) !important;
+        box-shadow: 0 18px 45px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    }
+
+    .hero-banner::before {
+        display: none !important;
+    }
+
+    .hero-banner h2,
+    .hero-banner p,
+    .hero-banner span,
+    .hero-banner .text-gray-300,
+    .hero-banner .text-gray-400 {
+        color: #ffffff !important;
+    }
+
+    .hero-banner p {
+        color: rgba(255,255,255,.76) !important;
+    }
+
+    .round-label {
+        background: rgba(255,255,255,.10) !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+        color: #ffe9a3 !important;
+    }
+
+    .stat-card-pro {
+        background: rgba(255,255,255,.09) !important;
+        border: 1px solid rgba(255,255,255,.14) !important;
+        color: #ffffff !important;
+    }
+
+    .stat-card-pro span {
+        color: rgba(255,255,255,.70) !important;
+    }
+
+    .glass-card {
+        background: rgba(255,255,255,.08) !important;
+        border-color: rgba(255,255,255,.12) !important;
+        color: #ffffff !important;
+    }
+
+    .match-card {
+        background:
+            radial-gradient(circle at 12% 0%, rgba(102,126,234,.16), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.025)) !important;
+        color: #ffffff !important;
+    }
+
+    body > nav.container {
+        background: rgba(15,12,41,.94) !important;
+        border: 1px solid rgba(255,255,255,.14) !important;
+    }
+
+    body > nav .tab-active {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        box-shadow: 0 8px 22px rgba(102,126,234,.32) !important;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #11998e, #38ef7d) !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    }
+
+    .admin-badge {
+        background: linear-gradient(135deg, rgba(255,210,0,.25), rgba(255,255,255,.08)) !important;
+        border-color: rgba(255,215,0,.35) !important;
+        color: #fff8d7 !important;
+    }
+}
+
     </style>
 </head>
 <body class="text-white">
