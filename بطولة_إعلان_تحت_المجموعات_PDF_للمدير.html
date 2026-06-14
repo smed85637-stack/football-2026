@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطولة احترافية جميلة 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .glass {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .glass-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-gold {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+        }
+
+        .team-badge {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .match-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .match-card:hover {
+            border-color: rgba(102,126,234,0.4);
+            box-shadow: 0 0 30px rgba(102,126,234,0.1);
+        }
+
+        .score-input {
+            width: 50px;
+            height: 40px;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .score-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102,126,234,0.3);
+        }
+
+        .bracket-line {
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .winner-glow {
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+            border-color: rgba(255,215,0,0.5) !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(56,239,125,0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349, #f45c43);
+            transition: all 0.3s;
+        }
+
+        .player-row {
+            transition: all 0.3s;
+        }
+
+        .player-row:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .modal-overlay {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3e, #2d2b55);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .position-gk { background: linear-gradient(135deg, #f7971e, #ffd200); }
+        .position-def { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .position-mid { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .position-fwd { background: linear-gradient(135deg, #eb3349, #f45c43); }
+
+        .group-header-a { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .group-header-b { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .group-header-c { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .group-header-d { background: linear-gradient(135deg, #f7971e, #ffd200); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+            50% { box-shadow: 0 0 25px rgba(255,215,0,0.6); }
+        }
+
+        .trophy-pulse {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .formation-field {
+            background: linear-gradient(to bottom, #2d8a4e, #1e6b3a);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .formation-field::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .formation-field::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+
+        .field-player {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .field-player:hover {
+            transform: scale(1.2);
+        }
+
+        .top-scorer-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.8s ease;
+        }
+
+
+
+        :root {
+            --gold: #ffd166;
+            --violet: #7c3aed;
+            --cyan: #22d3ee;
+            --rose: #fb7185;
+            --dark-a: #070719;
+            --dark-b: #14143a;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            inset: auto;
+            width: 460px;
+            height: 460px;
+            border-radius: 9999px;
+            filter: blur(90px);
+            opacity: .32;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        body::before {
+            top: -140px;
+            right: -120px;
+            background: radial-gradient(circle, rgba(255,209,102,.9), rgba(124,58,237,.12), transparent 70%);
+            animation: floatBlob 12s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            bottom: -180px;
+            left: -120px;
+            background: radial-gradient(circle, rgba(34,211,238,.8), rgba(251,113,133,.12), transparent 70%);
+            animation: floatBlob 15s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatBlob {
+            from { transform: translate3d(0,0,0) scale(1); }
+            to { transform: translate3d(34px,24px,0) scale(1.08); }
+        }
+
+        .hero-banner {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 14% 22%, rgba(255,209,102,.34), transparent 23%),
+                radial-gradient(circle at 86% 18%, rgba(34,211,238,.24), transparent 26%),
+                linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.035));
+            border: 1px solid rgba(255,255,255,.14);
+            box-shadow: 0 30px 90px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.15);
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(120deg, transparent 0 20%, rgba(255,255,255,.18) 32%, transparent 44% 100%);
+            transform: translateX(58%);
+            animation: heroShine 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes heroShine {
+            0%, 35% { transform: translateX(58%); opacity: 0; }
+            48% { opacity: .9; }
+            70%, 100% { transform: translateX(-58%); opacity: 0; }
+        }
+
+        .hero-cup {
+            background: linear-gradient(135deg, rgba(255,209,102,.28), rgba(255,255,255,.08));
+            border: 1px solid rgba(255,209,102,.35);
+            box-shadow: 0 18px 55px rgba(255,209,102,.12);
+        }
+
+        .stat-card-pro {
+            background: rgba(255,255,255,.075);
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+        }
+
+        .stat-card-pro strong {
+            letter-spacing: -.5px;
+        }
+
+        .progress-track {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #38ef7d, #22d3ee, #667eea);
+            box-shadow: 0 0 18px rgba(34,211,238,.28);
+            transition: width .7s ease;
+        }
+
+        .sparkle-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 99px;
+            background: rgba(255,255,255,.55);
+            box-shadow: 0 0 18px rgba(255,255,255,.65);
+            animation: sparkle 3.8s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: .15; transform: scale(.75); }
+            50% { opacity: .8; transform: scale(1.25); }
+        }
+
+        .soft-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+        }
+
+        .round-label {
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+        }
+
+        .floating-ball {
+            position: absolute;
+            left: 8%;
+            bottom: 14%;
+            font-size: 40px;
+            opacity: .16;
+            animation: ballFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes ballFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-16px) rotate(12deg); }
+        }
+
+
+
+        .admin-input {
+            width: 100%;
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 14px;
+            padding: 10px 12px;
+            color: white;
+            outline: none;
+            transition: all .25s ease;
+        }
+
+        .admin-input:focus {
+            border-color: rgba(255,215,0,.65);
+            box-shadow: 0 0 0 3px rgba(255,215,0,.10);
+            background: rgba(255,255,255,0.12);
+        }
+
+        .admin-input option { background: #1f1f3f; color: white; }
+
+        .admin-lock-note {
+            background: rgba(255,215,0,.10);
+            border: 1px solid rgba(255,215,0,.22);
+            color: #ffe9a3;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, rgba(255,210,0,.25), rgba(255,255,255,.08));
+            border: 1px solid rgba(255,215,0,.35);
+        }
+
+        .is-disabled {
+            opacity: .55;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .score-input {
+                width: 40px;
+                height: 35px;
+                font-size: 16px;
+            }
+            .team-badge {
+                width: 35px;
+                height: 35px;
+                font-size: 11px;
+            }
+        }
+
+
+        .ad-slot {
+            background:
+                radial-gradient(circle at top right, rgba(255, 210, 0, .18), transparent 35%),
+                linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.035));
+            border: 1px dashed rgba(255, 215, 0, .45);
+            position: relative;
+            overflow: hidden;
+            min-height: 118px;
+        }
+
+        .ad-slot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+            transform: translateX(100%);
+            animation: adShine 4.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes adShine {
+            0%, 60% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ad-label {
+            background: rgba(255, 215, 0, .16);
+            border: 1px solid rgba(255, 215, 0, .40);
+            color: #ffe899;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ad-image {
+            width: 92px;
+            height: 92px;
+            object-fit: cover;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(255,255,255,.08);
+        }
+
+        .pdf-report-root { display: none; }
+
+        .print-only { display: none; }
+
+        @media print {
+            @page { size: A4; margin: 12mm; }
+            body { background: #fff !important; color: #111 !important; }
+            body > *:not(#pdf-report) { display: none !important; }
+            #pdf-report { display: block !important; font-family: Arial, sans-serif; direction: rtl; color: #111; }
+            .pdf-page-title { font-size: 24px; font-weight: 900; margin-bottom: 6px; color: #111; }
+            .pdf-subtitle { font-size: 12px; color: #555; margin-bottom: 14px; }
+            .pdf-section { margin: 16px 0; page-break-inside: avoid; }
+            .pdf-section h2 { font-size: 16px; margin: 0 0 8px; border-bottom: 2px solid #111; padding-bottom: 5px; }
+            .pdf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+            .pdf-stat { border: 1px solid #ddd; border-radius: 8px; padding: 8px; text-align: center; }
+            .pdf-stat strong { display: block; font-size: 18px; }
+            .pdf-table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 10px; }
+            .pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 5px; text-align: center; }
+            .pdf-table th { background: #f2f2f2; font-weight: 900; }
+            .pdf-table td.team-name, .pdf-table th.team-name { text-align: right; }
+            .pdf-ad { border: 1px dashed #999; border-radius: 10px; padding: 10px; margin: 10px 0; background: #fafafa; }
+            .pdf-ad strong { display: block; margin-bottom: 3px; }
+        }
+
+    </style>
+</head>
+<body class="text-white">
+    <div class="sparkle-dot" style="top:18%; right:12%; animation-delay:.2s"></div>
+    <div class="sparkle-dot" style="top:34%; left:16%; animation-delay:1.4s"></div>
+    <div class="sparkle-dot" style="bottom:22%; right:22%; animation-delay:2.1s"></div>
+
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="hero-cup rounded-2xl w-12 h-12 flex items-center justify-center text-3xl">🏆</div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-black gradient-text">بطولة الأبطال 2026</h1>
+                        <p class="text-xs text-gray-400">بطولة جميلة • 16 فريق • 4 مجموعات</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap justify-end">
+                    <button onclick="showTab('admin')" id="admin-status-btn" class="admin-badge px-4 py-2 rounded-xl text-sm font-bold">
+                        👑 دخول المدير
+                    </button>
+                    <button onclick="resetTournament()" id="reset-btn" class="btn-danger px-4 py-2 rounded-xl text-sm font-bold hidden">
+                        🔄 إعادة تعيين
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="container mx-auto px-4 mt-4">
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <button onclick="showTab('groups')" id="tab-groups" class="tab-btn tab-active px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all">
+                📋 المجموعات
+            </button>
+            <button onclick="showTab('matches')" id="tab-matches" class="tab-btn glass-card px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all">
+                ⚽ المباريات
+            </button>
+            <button onclick="showTab('knockout')" id="tab-knockout" class="tab-btn glass-card px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all">
+                🏅 الأدوار الإقصائية
+            </button>
+            <button onclick="showTab('squads')" id="tab-squads" class="tab-btn glass-card px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all">
+                👥 التشكيلات
+            </button>
+            <button onclick="showTab('scorers')" id="tab-scorers" class="tab-btn glass-card px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all">
+                🥅 الهدافين
+            </button>
+            <button onclick="showTab('admin')" id="tab-admin" class="tab-btn glass-card px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all">
+                👑 المدير
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Tournament Banner -->
+    <section class="container mx-auto px-4 mt-5">
+        <div class="hero-banner rounded-[28px] p-5 md:p-8 relative">
+            <span class="floating-ball">⚽</span>
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div class="lg:col-span-2">
+                    <div class="inline-flex items-center gap-2 round-label px-3 py-1.5 rounded-full text-xs font-bold text-yellow-200 mb-3">
+                        ✨ نظام بطولة احترافي جاهز للنتائج والترتيب
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-black leading-tight mb-3">
+                        بطولة جميلة بتصميم <span class="gradient-gold">ذهبي</span> ولوحة نتائج مباشرة
+                    </h2>
+                    <p class="text-gray-300 md:text-lg max-w-2xl">
+                        أضف النتائج، تابع ترتيب المجموعات، أنشئ الأدوار الإقصائية، وسجّل الهدافين في صفحة واحدة أنيقة ومناسبة للهاتف.
+                    </p>
+                    <div class="flex flex-wrap gap-3 mt-5">
+                        <button onclick="showTab('matches')" class="btn-success px-5 py-3 rounded-2xl text-sm font-black shadow-lg">
+                            ⚽ عرض المباريات
+                        </button>
+                        <button onclick="showTab('admin')" class="admin-badge px-5 py-3 rounded-2xl text-sm font-black shadow-lg">
+                            👑 لوحة المدير
+                        </button>
+                        <button onclick="showTab('knockout')" class="btn-primary px-5 py-3 rounded-2xl text-sm font-black shadow-lg">
+                            🏆 عرض الأدوار الإقصائية
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="stat-card-pro rounded-2xl p-4 text-center">
+                        <div class="text-3xl mb-1">👥</div>
+                        <strong id="hero-teams" class="text-2xl font-black block">16</strong>
+                        <span class="text-xs text-gray-400">فريق</span>
+                    </div>
+                    <div class="stat-card-pro rounded-2xl p-4 text-center">
+                        <div class="text-3xl mb-1">🏟️</div>
+                        <strong id="hero-played" class="text-2xl font-black block">0</strong>
+                        <span class="text-xs text-gray-400">مباراة لعبت</span>
+                    </div>
+                    <div class="stat-card-pro rounded-2xl p-4 text-center">
+                        <div class="text-3xl mb-1">⚽</div>
+                        <strong id="hero-goals" class="text-2xl font-black block">0</strong>
+                        <span class="text-xs text-gray-400">هدف</span>
+                    </div>
+                    <div class="stat-card-pro rounded-2xl p-4 text-center">
+                        <div class="text-3xl mb-1">🥇</div>
+                        <strong id="hero-progress-text" class="text-2xl font-black block">0%</strong>
+                        <span class="text-xs text-gray-400">تقدم البطولة</span>
+                    </div>
+                </div>
+            </div>
+            <div class="relative z-10 mt-6">
+                <div class="flex items-center justify-between text-xs text-gray-300 mb-2">
+                    <span>نسبة اكتمال مباريات المجموعات</span>
+                    <span id="hero-progress-label">0 من 24</span>
+                </div>
+                <div class="progress-track"><div id="hero-progress" class="progress-fill" style="width:0%"></div></div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+
+        <!-- Groups Tab -->
+        <div id="content-groups" class="tab-content fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            </div>
+            <div id="ad-slot-groups" class="mt-6 no-print"></div>
+        </div>
+
+        <!-- Matches Tab -->
+        <div id="content-matches" class="tab-content hidden fade-in">
+            <div class="mb-4 flex gap-2 flex-wrap">
+                <button onclick="filterMatches('all')" class="match-filter btn-primary px-4 py-2 rounded-xl text-sm font-bold">الكل</button>
+                <button onclick="filterMatches('A')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة A</button>
+                <button onclick="filterMatches('B')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة B</button>
+                <button onclick="filterMatches('C')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة C</button>
+                <button onclick="filterMatches('D')" class="match-filter glass-card px-4 py-2 rounded-xl text-sm font-bold">المجموعة D</button>
+            </div>
+            <div id="matches-list" class="space-y-4"></div>
+        </div>
+
+        <!-- Knockout Tab -->
+        <div id="content-knockout" class="tab-content hidden fade-in">
+            <div id="knockout-content"></div>
+        </div>
+
+        <!-- Squads Tab -->
+        <div id="content-squads" class="tab-content hidden fade-in">
+            <div class="mb-4">
+                <select id="squad-team-select" onchange="showSquad(this.value)" class="glass-card px-4 py-3 rounded-xl text-white bg-transparent w-full md:w-64 outline-none">
+                    <option value="" class="bg-gray-800">اختر فريق...</option>
+                </select>
+            </div>
+            <div id="squad-content"></div>
+        </div>
+
+        <!-- Scorers Tab -->
+        <div id="content-scorers" class="tab-content hidden fade-in">
+            <div id="scorers-content"></div>
+        </div>
+
+        <!-- Admin Tab -->
+        <div id="content-admin" class="tab-content hidden fade-in">
+            <div id="admin-content"></div>
+        </div>
+
+    </main>
+
+    <footer class="container mx-auto px-4 pb-8 no-print">
+        <div class="soft-divider my-6"></div>
+        <div class="text-center text-gray-400 text-sm">
+            🏆 بطولة الأبطال 2026 — تصميم جميل وسهل الاستخدام لإدارة البطولة
+        </div>
+    </footer>
+
+    <div id="pdf-report" class="pdf-report-root"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-content rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Goal Scorer Modal -->
+    <div id="goal-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-content rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div id="goal-modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+    // ============ ADMIN LOGIN ============
+    const ADMIN_EMAIL = 'client@gmail.com';
+    const ADMIN_CODE = '1234';
+    const defaultAds = [
+        { id: 'groups', title: 'مساحة إعلان تحت المجموعات', text: 'ضع هنا صورة إعلان الراعي أو رقم الواتساب أو تفاصيل العرض.', image: '', link: '', active: true }
+    ];
+
+
+    function isAdmin() {
+        return localStorage.getItem('tournamentAdminLogged') === 'yes';
+    }
+
+    function requireAdmin() {
+        if (!isAdmin()) {
+            alert('هذه العملية للمدير فقط. أدخل الإيميل والكود في صفحة المدير.');
+            showTab('admin');
+            return false;
+        }
+        return true;
+    }
+
+    // ============ DATA ============
+    const teamColors = [
+        '#e74c3c', '#3498db', '#2ecc71', '#f39c12',
+        '#9b59b6', '#1abc9c', '#e67e22', '#2980b9',
+        '#c0392b', '#27ae60', '#8e44ad', '#d35400',
+        '#16a085', '#2c3e50', '#f1c40f', '#7f8c8d'
+    ];
+
+    const defaultTeams = [
+        // Group A
+        { id: 1, name: 'الأهلي', short: 'AHL', group: 'A', color: teamColors[0] },
+        { id: 2, name: 'الزمالك', short: 'ZAM', group: 'A', color: teamColors[1] },
+        { id: 3, name: 'الاتحاد', short: 'ITH', group: 'A', color: teamColors[2] },
+        { id: 4, name: 'الهلال', short: 'HIL', group: 'A', color: teamColors[3] },
+        // Group B
+        { id: 5, name: 'النصر', short: 'NAS', group: 'B', color: teamColors[4] },
+        { id: 6, name: 'الشباب', short: 'SHA', group: 'B', color: teamColors[5] },
+        { id: 7, name: 'الرجاء', short: 'RAJ', group: 'B', color: teamColors[6] },
+        { id: 8, name: 'الوداد', short: 'WID', group: 'B', color: teamColors[7] },
+        // Group C
+        { id: 9, name: 'الترجي', short: 'TAR', group: 'C', color: teamColors[8] },
+        { id: 10, name: 'الصفاقسي', short: 'SFA', group: 'C', color: teamColors[9] },
+        { id: 11, name: 'مازيمبي', short: 'MAZ', group: 'C', color: teamColors[10] },
+        { id: 12, name: 'صن داونز', short: 'SUN', group: 'C', color: teamColors[11] },
+        // Group D
+        { id: 13, name: 'الوحدة', short: 'WAH', group: 'D', color: teamColors[12] },
+        { id: 14, name: 'العين', short: 'AIN', group: 'D', color: teamColors[13] },
+        { id: 15, name: 'السد', short: 'SAD', group: 'D', color: teamColors[14] },
+        { id: 16, name: 'الدحيل', short: 'DUH', group: 'D', color: teamColors[15] },
+    ];
+
+    const positions = {
+        'GK': 'حارس مرمى',
+        'DEF': 'مدافع',
+        'MID': 'لاعب وسط',
+        'FWD': 'مهاجم'
+    };
+
+    const playerNames = [
+        'أحمد محمد', 'علي حسن', 'محمد عبدالله', 'خالد إبراهيم', 'عمر سعيد',
+        'يوسف أحمد', 'حسين علي', 'سعد محمود', 'طارق حسام', 'فهد عبدالرحمن',
+        'ماجد سالم', 'نواف خالد', 'بدر فيصل', 'راشد عمر', 'سلطان ناصر',
+        'عادل كريم', 'مصطفى جمال', 'هشام رضا', 'وليد صلاح', 'زياد طارق',
+        'أنس بلال', 'باسم نور', 'جابر عيسى', 'حمزة رائد', 'ياسر منير'
+    ];
+
+    let tournament = {
+        teams: JSON.parse(JSON.stringify(defaultTeams)),
+        matches: [],
+        knockoutMatches: {
+            quarterFinals: [],
+            semiFinals: [],
+            final: null,
+            thirdPlace: null
+        },
+        squads: {},
+        goals: [],
+        standings: {},
+        ads: JSON.parse(JSON.stringify(defaultAds))
+    };
+
+    // ============ INITIALIZATION ============
+    function init() {
+        loadData();
+        if (tournament.matches.length === 0) {
+            generateGroupMatches();
+            generateSquads();
+        }
+        ensureDataIntegrity();
+        renderAll();
+    }
+
+    function saveData() {
+        localStorage.setItem('tournament2024', JSON.stringify(tournament));
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('tournament2024');
+        if (saved) {
+            tournament = JSON.parse(saved);
+        }
+    }
+
+    function ensureDataIntegrity() {
+        if (!tournament.teams) tournament.teams = JSON.parse(JSON.stringify(defaultTeams));
+        if (!tournament.matches) tournament.matches = [];
+        if (!tournament.squads) tournament.squads = {};
+        if (!tournament.knockoutMatches) {
+            tournament.knockoutMatches = { quarterFinals: [], semiFinals: [], final: null, thirdPlace: null };
+        }
+        if (!Array.isArray(tournament.ads) || tournament.ads.length === 0) {
+            tournament.ads = JSON.parse(JSON.stringify(defaultAds));
+        } else {
+            // تحويل النسخ القديمة التي فيها إعلان أعلى/وسط/أسفل إلى إعلان واحد تحت المجموعات
+            const oldMiddle = tournament.ads.find(ad => ad.id === 'middle');
+            const oldTop = tournament.ads.find(ad => ad.id === 'top');
+            const oldBottom = tournament.ads.find(ad => ad.id === 'bottom');
+            const existingGroups = tournament.ads.find(ad => ad.id === 'groups') || oldMiddle || oldTop || oldBottom || {};
+            tournament.ads = [{
+                ...defaultAds[0],
+                ...existingGroups,
+                id: 'groups',
+                active: existingGroups.active !== false
+            }];
+            const ad = tournament.ads[0];
+            if (typeof ad.title === 'undefined') ad.title = defaultAds[0].title;
+            if (typeof ad.text === 'undefined') ad.text = defaultAds[0].text;
+            if (typeof ad.image === 'undefined') ad.image = '';
+            if (typeof ad.link === 'undefined') ad.link = '';
+        }
+
+        tournament.teams.forEach((team, idx) => {
+            if (!team.short) team.short = String(team.name || 'TEAM').slice(0, 3).toUpperCase();
+            if (!team.group) team.group = ['A','B','C','D'][Math.floor(idx / 4)] || 'A';
+            if (!team.color) team.color = teamColors[idx % teamColors.length];
+            if (!team.formationName) team.formationName = '4-4-2';
+        });
+
+        tournament.teams.forEach(team => {
+            if (!Array.isArray(tournament.squads[team.id]) || tournament.squads[team.id].length === 0) {
+                tournament.squads[team.id] = buildDefaultSquad(team);
+            }
+        });
+        saveData();
+    }
+
+    function buildDefaultSquad(team) {
+        const squad = [];
+        const formation = [1, 4, 4, 2];
+        const posKeys = ['GK', 'DEF', 'MID', 'FWD'];
+        let playerNum = 1;
+        let nameIdx = 0;
+        posKeys.forEach((pos, pi) => {
+            for (let i = 0; i < formation[pi]; i++) {
+                squad.push({
+                    id: `${team.id}-${playerNum}`,
+                    name: playerNames[(nameIdx + team.id * 3) % playerNames.length],
+                    number: playerNum,
+                    position: pos,
+                    goals: 0,
+                    assists: 0,
+                    yellowCards: 0,
+                    redCards: 0
+                });
+                playerNum++;
+                nameIdx++;
+            }
+        });
+        for (let i = 0; i < 7; i++) {
+            const pos = posKeys[i % posKeys.length];
+            squad.push({
+                id: `${team.id}-${playerNum}`,
+                name: playerNames[(nameIdx + team.id * 5) % playerNames.length],
+                number: playerNum,
+                position: pos,
+                goals: 0,
+                assists: 0,
+                yellowCards: 0,
+                redCards: 0,
+                substitute: true
+            });
+            playerNum++;
+            nameIdx++;
+        }
+        return squad;
+    }
+
+    function resetTournament() {
+        if (!requireAdmin()) return;
+        if (confirm('هل أنت متأكد من إعادة تعيين البطولة؟ سيتم حذف جميع البيانات.')) {
+            localStorage.removeItem('tournament2024');
+            tournament = {
+                teams: JSON.parse(JSON.stringify(defaultTeams)),
+                matches: [],
+                knockoutMatches: { quarterFinals: [], semiFinals: [], final: null, thirdPlace: null },
+                squads: {},
+                goals: [],
+                standings: {},
+                ads: JSON.parse(JSON.stringify(defaultAds))
+            };
+            generateGroupMatches();
+            generateSquads();
+            renderAll();
+        }
+    }
+
+    // ============ GENERATE DATA ============
+    function generateGroupMatches() {
+        tournament.matches = [];
+        const groups = ['A', 'B', 'C', 'D'];
+        let matchId = 1;
+
+        groups.forEach(group => {
+            const groupTeams = tournament.teams.filter(t => t.group === group);
+            for (let i = 0; i < groupTeams.length; i++) {
+                for (let j = i + 1; j < groupTeams.length; j++) {
+                    tournament.matches.push({
+                        id: matchId++,
+                        team1: groupTeams[i].id,
+                        team2: groupTeams[j].id,
+                        score1: null,
+                        score2: null,
+                        group: group,
+                        played: false,
+                        goalScorers: []
+                    });
+                }
+            }
+        });
+        saveData();
+    }
+
+    function generateSquads() {
+        tournament.squads = {};
+        tournament.teams.forEach(team => {
+            team.formationName = team.formationName || '4-4-2';
+            const squad = [];
+            const formation = [1, 4, 4, 2]; // GK, DEF, MID, FWD
+            const posKeys = ['GK', 'DEF', 'MID', 'FWD'];
+            let playerNum = 1;
+            let nameIdx = 0;
+
+            posKeys.forEach((pos, pi) => {
+                for (let i = 0; i < formation[pi]; i++) {
+                    squad.push({
+                        id: `${team.id}-${playerNum}`,
+                        name: playerNames[(nameIdx + team.id * 3) % playerNames.length],
+                        number: playerNum,
+                        position: pos,
+                        goals: 0,
+                        assists: 0,
+                        yellowCards: 0,
+                        redCards: 0
+                    });
+                    playerNum++;
+                    nameIdx++;
+                }
+            });
+
+            // Add substitutes
+            for (let i = 0; i < 7; i++) {
+                const pos = posKeys[Math.floor(Math.random() * 4)];
+                squad.push({
+                    id: `${team.id}-${playerNum}`,
+                    name: playerNames[(nameIdx + team.id * 5) % playerNames.length],
+                    number: playerNum,
+                    position: pos,
+                    goals: 0,
+                    assists: 0,
+                    yellowCards: 0,
+                    redCards: 0,
+                    substitute: true
+                });
+                playerNum++;
+                nameIdx++;
+            }
+
+            tournament.squads[team.id] = squad;
+        });
+        saveData();
+    }
+
+    // ============ CALCULATIONS ============
+    function calculateStandings() {
+        const standings = {};
+        const groups = ['A', 'B', 'C', 'D'];
+
+        groups.forEach(group => {
+            const groupTeams = tournament.teams.filter(t => t.group === group);
+            standings[group] = groupTeams.map(team => ({
+                teamId: team.id,
+                team: team,
+                played: 0,
+                won: 0,
+                drawn: 0,
+                lost: 0,
+                goalsFor: 0,
+                goalsAgainst: 0,
+                goalDifference: 0,
+                points: 0
+            }));
+
+            const groupMatches = tournament.matches.filter(m => m.group === group && m.played);
+            groupMatches.forEach(match => {
+                const t1 = standings[group].find(s => s.teamId === match.team1);
+                const t2 = standings[group].find(s => s.teamId === match.team2);
+
+                if (t1 && t2) {
+                    t1.played++;
+                    t2.played++;
+                    t1.goalsFor += match.score1;
+                    t1.goalsAgainst += match.score2;
+                    t2.goalsFor += match.score2;
+                    t2.goalsAgainst += match.score1;
+
+                    if (match.score1 > match.score2) {
+                        t1.won++; t1.points += 3;
+                        t2.lost++;
+                    } else if (match.score1 < match.score2) {
+                        t2.won++; t2.points += 3;
+                        t1.lost++;
+                    } else {
+                        t1.drawn++; t1.points += 1;
+                        t2.drawn++; t2.points += 1;
+                    }
+
+                    t1.goalDifference = t1.goalsFor - t1.goalsAgainst;
+                    t2.goalDifference = t2.goalsFor - t2.goalsAgainst;
+                }
+            });
+
+            standings[group].sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+                return b.goalsFor - a.goalsFor;
+            });
+        });
+
+        tournament.standings = standings;
+        return standings;
+    }
+
+    function getTeam(id) {
+        return tournament.teams.find(t => t.id === id);
+    }
+
+    function isGroupStageComplete() {
+        return tournament.matches.filter(m => m.group).every(m => m.played);
+    }
+
+    // ============ RENDERING ============
+
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function safeLink(url) {
+        const value = String(url || '').trim();
+        if (!value) return '';
+        if (/^https?:\/\//i.test(value) || /^mailto:/i.test(value) || /^tel:/i.test(value)) return value;
+        return 'https://' + value;
+    }
+
+    function renderAdHTML(ad) {
+        if (!ad || ad.active === false) return '';
+        const title = escapeHtml(ad.title || 'مساحة إعلان');
+        const text = escapeHtml(ad.text || 'ضع إعلانك هنا');
+        const image = String(ad.image || '').trim();
+        const link = safeLink(ad.link);
+        const inner = `
+            <div class="ad-slot rounded-3xl p-4 md:p-5">
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center gap-4">
+                    ${image ? `<img src="${escapeAttr(image)}" alt="إعلان" class="ad-image">` : `<div class="ad-image flex items-center justify-center text-4xl">📢</div>`}
+                    <div class="flex-1">
+                        <span class="ad-label">📌 إعلان</span>
+                        <h3 class="text-xl md:text-2xl font-black mt-2 text-white">${title}</h3>
+                        <p class="text-gray-300 text-sm md:text-base mt-1">${text}</p>
+                    </div>
+                    <div class="text-yellow-200 text-sm font-black opacity-80">مساحة إعلانية</div>
+                </div>
+            </div>`;
+        return link ? `<a href="${escapeAttr(link)}" target="_blank" rel="noopener" class="block">${inner}</a>` : inner;
+    }
+
+    function renderAds() {
+        const ads = Array.isArray(tournament.ads) ? tournament.ads : defaultAds;
+        const groupsAd = document.getElementById('ad-slot-groups');
+        if (groupsAd) groupsAd.innerHTML = renderAdHTML(ads.find(a => a.id === 'groups') || ads[0]);
+    }
+
+    function buildPDFReportHTML() {
+        const standings = calculateStandings();
+        const played = tournament.matches.filter(m => m.played).length;
+        const totalMatches = tournament.matches.filter(m => m.group).length || tournament.matches.length || 0;
+        const goals = tournament.matches.filter(m => m.played).reduce((sum, m) => sum + (Number(m.score1) || 0) + (Number(m.score2) || 0), 0);
+        const topScorers = [];
+        Object.keys(tournament.squads || {}).forEach(teamId => {
+            const team = getTeam(parseInt(teamId));
+            (tournament.squads[teamId] || []).forEach(player => {
+                if ((player.goals || 0) > 0) topScorers.push({ ...player, team });
+            });
+        });
+        topScorers.sort((a, b) => (b.goals || 0) - (a.goals || 0));
+
+        const adsForPdf = (tournament.ads || []).filter(ad => ad.active !== false && (ad.title || ad.text));
+        const adsHTML = adsForPdf.length ? `
+            <div class="pdf-section">
+                <h2>الإعلانات / الرعاة</h2>
+                ${adsForPdf.map(ad => `<div class="pdf-ad"><strong>${escapeHtml(ad.title || 'إعلان')}</strong><span>${escapeHtml(ad.text || '')}</span></div>`).join('')}
+            </div>` : '';
+
+        const groupsHTML = ['A','B','C','D'].map(group => `
+            <div class="pdf-section">
+                <h2>المجموعة ${group}</h2>
+                <table class="pdf-table">
+                    <thead><tr><th>#</th><th class="team-name">الفريق</th><th>لعب</th><th>فوز</th><th>تعادل</th><th>خسارة</th><th>له</th><th>عليه</th><th>الفرق</th><th>النقاط</th></tr></thead>
+                    <tbody>
+                        ${(standings[group] || []).map((s, idx) => `<tr><td>${idx+1}</td><td class="team-name">${escapeHtml(s.team.name)}</td><td>${s.played}</td><td>${s.won}</td><td>${s.drawn}</td><td>${s.lost}</td><td>${s.goalsFor}</td><td>${s.goalsAgainst}</td><td>${s.goalDifference}</td><td><strong>${s.points}</strong></td></tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`).join('');
+
+        const matchesHTML = tournament.matches.filter(m => m.group).map(match => {
+            const t1 = getTeam(match.team1);
+            const t2 = getTeam(match.team2);
+            return `<tr><td>${match.group}</td><td class="team-name">${escapeHtml(t1?.name || '')}</td><td>${match.played ? match.score1 + ' - ' + match.score2 : '-'}</td><td class="team-name">${escapeHtml(t2?.name || '')}</td><td>${match.played ? 'انتهت' : 'لم تلعب'}</td></tr>`;
+        }).join('');
+
+        const scorersHTML = topScorers.length ? topScorers.slice(0, 15).map((p, idx) => `<tr><td>${idx+1}</td><td class="team-name">${escapeHtml(p.name)}</td><td class="team-name">${escapeHtml(p.team?.name || '')}</td><td>${positions[p.position] || p.position}</td><td><strong>${p.goals}</strong></td></tr>`).join('') : `<tr><td colspan="5">لا توجد أهداف مسجلة بعد</td></tr>`;
+
+        return `
+            <div class="pdf-page-title">🏆 بطولة الأبطال 2026</div>
+            <div class="pdf-subtitle">تقرير PDF للبطولة - النتائج، المجموعات، المباريات والهدافين</div>
+            <div class="pdf-grid">
+                <div class="pdf-stat"><strong>${tournament.teams.length}</strong><span>الأندية</span></div>
+                <div class="pdf-stat"><strong>${played}</strong><span>مباريات لعبت</span></div>
+                <div class="pdf-stat"><strong>${totalMatches}</strong><span>مباريات المجموعات</span></div>
+                <div class="pdf-stat"><strong>${goals}</strong><span>إجمالي الأهداف</span></div>
+            </div>
+            ${adsHTML}
+            ${groupsHTML}
+            <div class="pdf-section">
+                <h2>المباريات</h2>
+                <table class="pdf-table">
+                    <thead><tr><th>المجموعة</th><th class="team-name">الفريق الأول</th><th>النتيجة</th><th class="team-name">الفريق الثاني</th><th>الحالة</th></tr></thead>
+                    <tbody>${matchesHTML}</tbody>
+                </table>
+            </div>
+            <div class="pdf-section">
+                <h2>ترتيب الهدافين</h2>
+                <table class="pdf-table">
+                    <thead><tr><th>#</th><th class="team-name">اللاعب</th><th class="team-name">الفريق</th><th>المركز</th><th>الأهداف</th></tr></thead>
+                    <tbody>${scorersHTML}</tbody>
+                </table>
+            </div>`;
+    }
+
+    function downloadTournamentPDF() {
+        if (!requireAdmin()) return;
+        const report = document.getElementById('pdf-report');
+        if (!report) return;
+        report.innerHTML = buildPDFReportHTML();
+        setTimeout(() => window.print(), 80);
+    }
+
+    function renderHeroStats() {
+        const played = tournament.matches.filter(m => m.played).length;
+        const totalGroupMatches = tournament.matches.filter(m => m.group).length || 24;
+        const goals = tournament.matches.filter(m => m.played).reduce((sum, m) => sum + (Number(m.score1) || 0) + (Number(m.score2) || 0), 0);
+        const percent = Math.round((played / totalGroupMatches) * 100);
+
+        const teamsEl = document.getElementById('hero-teams');
+        const playedEl = document.getElementById('hero-played');
+        const goalsEl = document.getElementById('hero-goals');
+        const progressTextEl = document.getElementById('hero-progress-text');
+        const progressLabelEl = document.getElementById('hero-progress-label');
+        const progressEl = document.getElementById('hero-progress');
+
+        if (teamsEl) teamsEl.textContent = tournament.teams.length;
+        if (playedEl) playedEl.textContent = played;
+        if (goalsEl) goalsEl.textContent = goals;
+        if (progressTextEl) progressTextEl.textContent = percent + '%';
+        if (progressLabelEl) progressLabelEl.textContent = `${played} من ${totalGroupMatches}`;
+        if (progressEl) progressEl.style.width = percent + '%';
+    }
+
+    function renderAll() {
+        renderHeroStats();
+        renderAdminStatus();
+        renderAds();
+        renderGroups();
+        renderMatches();
+        renderKnockout();
+        renderSquadSelect();
+        renderScorers();
+        renderAdminPanel();
+    }
+
+    function showTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(el => {
+            el.classList.remove('tab-active');
+            el.classList.add('glass-card');
+        });
+
+        document.getElementById(`content-${tab}`).classList.remove('hidden');
+        const tabBtn = document.getElementById(`tab-${tab}`);
+        tabBtn.classList.add('tab-active');
+        tabBtn.classList.remove('glass-card');
+
+        // Re-render content
+        if (tab === 'groups') renderGroups();
+        if (tab === 'matches') renderMatches();
+        if (tab === 'knockout') renderKnockout();
+        if (tab === 'scorers') renderScorers();
+        if (tab === 'admin') renderAdminPanel();
+    }
+
+    // ============ GROUPS RENDERING ============
+    function renderGroups() {
+        const standings = calculateStandings();
+        const container = document.querySelector('#content-groups .grid');
+        const groupNames = { 'A': 'المجموعة A', 'B': 'المجموعة B', 'C': 'المجموعة C', 'D': 'المجموعة D' };
+        const headerClasses = { 'A': 'group-header-a', 'B': 'group-header-b', 'C': 'group-header-c', 'D': 'group-header-d' };
+
+        let html = '';
+        ['A', 'B', 'C', 'D'].forEach(group => {
+            html += `
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="${headerClasses[group]} px-5 py-3">
+                        <h3 class="text-lg font-black text-white">${groupNames[group]}</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-white/10">
+                                    <th class="py-3 px-3 text-right">#</th>
+                                    <th class="py-3 px-2 text-right">الفريق</th>
+                                    <th class="py-3 px-2 text-center">لعب</th>
+                                    <th class="py-3 px-2 text-center">فوز</th>
+                                    <th class="py-3 px-2 text-center">تعادل</th>
+                                    <th class="py-3 px-2 text-center">خسارة</th>
+                                    <th class="py-3 px-2 text-center">له</th>
+                                    <th class="py-3 px-2 text-center">عليه</th>
+                                    <th class="py-3 px-2 text-center">الفرق</th>
+                                    <th class="py-3 px-3 text-center font-black">النقاط</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+            standings[group].forEach((s, idx) => {
+                const qualifyClass = idx < 2 ? 'border-r-2 border-green-500' : '';
+                html += `
+                                <tr class="border-b border-white/5 ${qualifyClass} hover:bg-white/5 transition-colors cursor-pointer" onclick="showTab('squads'); document.getElementById('squad-team-select').value='${s.teamId}'; showSquad(${s.teamId});">
+                                    <td class="py-3 px-3 font-bold ${idx < 2 ? 'text-green-400' : 'text-gray-500'}">${idx + 1}</td>
+                                    <td class="py-3 px-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="team-badge" style="background:${s.team.color}; width:30px; height:30px; font-size:10px;">${s.team.short}</div>
+                                            <span class="font-bold text-white">${s.team.name}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-2 text-center text-gray-300">${s.played}</td>
+                                    <td class="py-3 px-2 text-center text-green-400">${s.won}</td>
+                                    <td class="py-3 px-2 text-center text-yellow-400">${s.drawn}</td>
+                                    <td class="py-3 px-2 text-center text-red-400">${s.lost}</td>
+                                    <td class="py-3 px-2 text-center text-gray-300">${s.goalsFor}</td>
+                                    <td class="py-3 px-2 text-center text-gray-300">${s.goalsAgainst}</td>
+                                    <td class="py-3 px-2 text-center font-bold ${s.goalDifference > 0 ? 'text-green-400' : s.goalDifference < 0 ? 'text-red-400' : 'text-gray-400'}">${s.goalDifference > 0 ? '+' : ''}${s.goalDifference}</td>
+                                    <td class="py-3 px-3 text-center">
+                                        <span class="bg-white/10 px-3 py-1 rounded-full font-black text-lg">${s.points}</span>
+                                    </td>
+                                </tr>`;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-4 py-2 text-xs text-green-400/60 border-t border-white/5">
+                        ✅ الأول والثاني يتأهلان لربع النهائي
+                    </div>
+                </div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ============ MATCHES RENDERING ============
+    function renderMatches(filter = 'all') {
+        const container = document.getElementById('matches-list');
+        let matches = tournament.matches.filter(m => m.group);
+
+        if (filter !== 'all') {
+            matches = matches.filter(m => m.group === filter);
+        }
+
+        let html = '';
+        let currentGroup = '';
+
+        matches.forEach(match => {
+            const team1 = getTeam(match.team1);
+            const team2 = getTeam(match.team2);
+
+            if (match.group !== currentGroup) {
+                currentGroup = match.group;
+                html += `<h3 class="text-lg font-bold text-gray-300 mt-4 mb-2">المجموعة ${currentGroup}</h3>`;
+            }
+
+            html += `
+                <div class="match-card p-4 ${match.played ? 'border-green-500/20' : ''}">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex-1 flex items-center justify-end gap-2">
+                            <span class="font-bold text-sm md:text-base">${team1.name}</span>
+                            <div class="team-badge" style="background:${team1.color}">${team1.short}</div>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 mx-2">
+                            <input type="number" min="0" max="20" value="${match.score1 !== null ? match.score1 : ''}" 
+                                class="score-input" id="score1-${match.id}" placeholder="-" ${isAdmin() ? '' : 'disabled'}>
+                            <span class="text-gray-500 font-bold text-lg">:</span>
+                            <input type="number" min="0" max="20" value="${match.score2 !== null ? match.score2 : ''}" 
+                                class="score-input" id="score2-${match.id}" placeholder="-" ${isAdmin() ? '' : 'disabled'}>
+                        </div>
+
+                        <div class="flex-1 flex items-center gap-2">
+                            <div class="team-badge" style="background:${team2.color}">${team2.short}</div>
+                            <span class="font-bold text-sm md:text-base">${team2.name}</span>
+                        </div>
+                    </div>
+                    
+                    ${isAdmin() ? `
+                    <div class="flex items-center justify-center gap-2 mt-3">
+                        <button onclick="saveMatch(${match.id})" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold">
+                            💾 حفظ النتيجة
+                        </button>
+                        <button onclick="openGoalScorers(${match.id})" class="btn-primary px-4 py-1.5 rounded-lg text-xs font-bold">
+                            ⚽ الهدافين
+                        </button>
+                    </div>` : `
+                    <div class="admin-lock-note rounded-xl px-3 py-2 text-center text-xs font-bold mt-3">
+                        🔒 تعديل النتيجة والهدافين للمدير فقط
+                    </div>`}
+
+                    ${match.goalScorers && match.goalScorers.length > 0 ? `
+                        <div class="mt-3 pt-3 border-t border-white/10">
+                            <div class="flex flex-wrap gap-2 justify-center">
+                                ${match.goalScorers.map(gs => {
+                                    const team = getTeam(gs.teamId);
+                                    const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+                                    return `<span class="text-xs bg-white/10 px-2 py-1 rounded-full">⚽ ${player?.name || 'لاعب'} (${team?.short})</span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function filterMatches(filter) {
+        document.querySelectorAll('.match-filter').forEach(btn => {
+            btn.classList.remove('tab-active');
+            btn.classList.add('glass-card');
+        });
+        event.target.classList.add('tab-active');
+        event.target.classList.remove('glass-card');
+        renderMatches(filter);
+    }
+
+    function saveMatch(matchId) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        const score1 = document.getElementById(`score1-${matchId}`).value;
+        const score2 = document.getElementById(`score2-${matchId}`).value;
+
+        if (score1 === '' || score2 === '') {
+            alert('يرجى إدخال النتيجة كاملة');
+            return;
+        }
+
+        match.score1 = parseInt(score1);
+        match.score2 = parseInt(score2);
+        match.played = true;
+
+        saveData();
+        renderHeroStats();
+        renderMatches();
+        renderGroups();
+
+        if (isGroupStageComplete()) {
+            generateKnockoutStage();
+        }
+    }
+
+    // ============ GOAL SCORERS ============
+    function openGoalScorers(matchId) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match) return;
+
+        const team1 = getTeam(match.team1);
+        const team2 = getTeam(match.team2);
+        const squad1 = tournament.squads[match.team1] || [];
+        const squad2 = tournament.squads[match.team2] || [];
+
+        let html = `
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold gradient-text">⚽ تسجيل الأهداف</h3>
+                <button onclick="closeGoalModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">${team1.name} vs ${team2.name}</p>
+            
+            <div class="mb-4">
+                <h4 class="font-bold mb-2" style="color:${team1.color}">⚽ أهداف ${team1.name}</h4>
+                <select id="scorer-team1" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                    <option value="" class="bg-gray-800">اختر اللاعب...</option>
+                    ${squad1.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name} (${positions[p.position]})</option>`).join('')}
+                </select>
+                <button onclick="addGoalScorer(${matchId}, ${match.team1}, 'scorer-team1')" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold w-full">
+                    + إضافة هدف
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="font-bold mb-2" style="color:${team2.color}">⚽ أهداف ${team2.name}</h4>
+                <select id="scorer-team2" class="w-full glass-card px-3 py-2 rounded-lg text-white bg-transparent outline-none mb-2">
+                    <option value="" class="bg-gray-800">اختر اللاعب...</option>
+                    ${squad2.map(p => `<option value="${p.id}" class="bg-gray-800">${p.number}. ${p.name} (${positions[p.position]})</option>`).join('')}
+                </select>
+                <button onclick="addGoalScorer(${matchId}, ${match.team2}, 'scorer-team2')" class="btn-success px-4 py-1.5 rounded-lg text-xs font-bold w-full">
+                    + إضافة هدف
+                </button>
+            </div>
+
+            <div class="border-t border-white/10 pt-3">
+                <h4 class="font-bold mb-2 text-sm text-gray-300">الأهداف المسجلة:</h4>
+                <div id="goal-list" class="space-y-1">`;
+
+        if (match.goalScorers && match.goalScorers.length > 0) {
+            match.goalScorers.forEach((gs, idx) => {
+                const team = getTeam(gs.teamId);
+                const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+                html += `
+                    <div class="flex justify-between items-center bg-white/5 px-3 py-2 rounded-lg">
+                        <span class="text-sm">⚽ ${player?.name || 'لاعب'} <span class="text-gray-400">(${team?.short})</span></span>
+                        <button onclick="removeGoalScorer(${matchId}, ${idx})" class="text-red-400 hover:text-red-300 text-sm">✕</button>
+                    </div>`;
+            });
+        } else {
+            html += '<p class="text-gray-500 text-sm">لا توجد أهداف مسجلة</p>';
+        }
+
+        html += `</div></div>`;
+
+        document.getElementById('goal-modal-body').innerHTML = html;
+        document.getElementById('goal-modal').classList.remove('hidden');
+    }
+
+    function addGoalScorer(matchId, teamId, selectId) {
+        if (!requireAdmin()) return;
+        const select = document.getElementById(selectId);
+        const playerId = select.value;
+        if (!playerId) return;
+
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match.goalScorers) match.goalScorers = [];
+
+        match.goalScorers.push({ teamId, playerId });
+
+        // Update player goals
+        const player = tournament.squads[teamId]?.find(p => p.id === playerId);
+        if (player) player.goals++;
+
+        saveData();
+        openGoalScorers(matchId);
+        renderScorers();
+    }
+
+    function removeGoalScorer(matchId, idx) {
+        if (!requireAdmin()) return;
+        const match = tournament.matches.find(m => m.id === matchId);
+        if (!match.goalScorers) return;
+
+        const gs = match.goalScorers[idx];
+        const player = tournament.squads[gs.teamId]?.find(p => p.id === gs.playerId);
+        if (player && player.goals > 0) player.goals--;
+
+        match.goalScorers.splice(idx, 1);
+        saveData();
+        openGoalScorers(matchId);
+        renderScorers();
+    }
+
+    function closeGoalModal() {
+        document.getElementById('goal-modal').classList.add('hidden');
+        renderMatches();
+    }
+
+    // ============ KNOCKOUT STAGE ============
+    function generateKnockoutStage() {
+        const standings = calculateStandings();
+
+        // Quarter finals: 1A vs 2B, 1B vs 2A, 1C vs 2D, 1D vs 2C
+        const qf = [
+            { team1: standings['A'][0].teamId, team2: standings['B'][1].teamId, score1: null, score2: null, played: false, goalScorers: [] },
+            { team1: standings['B'][0].teamId, team2: standings['A'][1].teamId, score1: null, score2: null, played: false, goalScorers: [] },
+            { team1: standings['C'][0].teamId, team2: standings['D'][1].teamId, score1: null, score2: null, played: false, goalScorers: [] },
+            { team1: standings['D'][0].teamId, team2: standings['C'][1].teamId, score1: null, score2: null, played: false, goalScorers: [] },
+        ];
+
+        tournament.knockoutMatches.quarterFinals = qf;
+        tournament.knockoutMatches.semiFinals = [
+            { team1: null, team2: null, score1: null, score2: null, played: false, goalScorers: [] },
+            { team1: null, team2: null, score1: null, score2: null, played: false, goalScorers: [] },
+        ];
+        tournament.knockoutMatches.final = { team1: null, team2: null, score1: null, score2: null, played: false, goalScorers: [] };
+        tournament.knockoutMatches.thirdPlace = { team1: null, team2: null, score1: null, score2: null, played: false, goalScorers: [] };
+
+        saveData();
+        renderHeroStats();
+        renderKnockout();
+    }
+
+    function renderKnockout() {
+        const container = document.getElementById('knockout-content');
+        const ko = tournament.knockoutMatches;
+
+        if (!ko.quarterFinals || ko.quarterFinals.length === 0) {
+            if (!isGroupStageComplete()) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-8 text-center">
+                        <div class="text-6xl mb-4">🏟️</div>
+                        <h3 class="text-xl font-bold mb-2">الأدوار الإقصائية</h3>
+                        <p class="text-gray-400">يجب إكمال جميع مباريات المجموعات أولاً</p>
+                        <div class="mt-4">
+                            <div class="bg-white/10 rounded-full h-3 overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all" 
+                                    style="width:${(tournament.matches.filter(m => m.played).length / tournament.matches.filter(m => m.group).length * 100)}%"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mt-2">${tournament.matches.filter(m => m.played).length} / ${tournament.matches.filter(m => m.group).length} مباراة</p>
+                        </div>
+                    </div>`;
+            } else {
+                generateKnockoutStage();
+            }
+            return;
+        }
+
+        let html = '';
+
+        // Quarter Finals
+        html += `<h3 class="text-xl font-black gradient-text mb-4">🏅 ربع النهائي</h3>`;
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">`;
+        ko.quarterFinals.forEach((match, idx) => {
+            html += renderKnockoutMatch(match, 'qf', idx);
+        });
+        html += `</div>`;
+
+        // Semi Finals
+        html += `<h3 class="text-xl font-black gradient-text mb-4">🥈 نصف النهائي</h3>`;
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">`;
+        ko.semiFinals.forEach((match, idx) => {
+            html += renderKnockoutMatch(match, 'sf', idx);
+        });
+        html += `</div>`;
+
+        // Third Place
+        html += `<h3 class="text-xl font-black gradient-text mb-4">🥉 مباراة المركز الثالث</h3>`;
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">`;
+        html += renderKnockoutMatch(ko.thirdPlace, 'tp', 0);
+        html += `</div>`;
+
+        // Final
+        html += `<h3 class="text-xl font-black gradient-gold mb-4">🏆 النهائي</h3>`;
+        html += `<div class="max-w-xl mx-auto mb-8">`;
+        html += renderKnockoutMatch(ko.final, 'final', 0, true);
+        html += `</div>`;
+
+        // Champion
+        if (ko.final && ko.final.played) {
+            const winnerId = ko.final.score1 > ko.final.score2 ? ko.final.team1 : ko.final.team2;
+            const champion = getTeam(winnerId);
+            if (champion) {
+                html += `
+                    <div class="glass-card rounded-2xl p-8 text-center trophy-pulse max-w-md mx-auto">
+                        <div class="text-6xl mb-4">🏆</div>
+                        <h3 class="text-2xl font-black gradient-gold mb-2">البطل</h3>
+                        <div class="team-badge mx-auto mb-3" style="background:${champion.color}; width:60px; height:60px; font-size:20px;">${champion.short}</div>
+                        <p class="text-2xl font-black text-white">${champion.name}</p>
+                    </div>`;
+            }
+        }
+
+        container.innerHTML = html;
+    }
+
+    function renderKnockoutMatch(match, stage, idx, isFinal = false) {
+        if (!match) return '<div class="glass-card rounded-xl p-4 text-center text-gray-500">في الانتظار...</div>';
+
+        const team1 = match.team1 ? getTeam(match.team1) : null;
+        const team2 = match.team2 ? getTeam(match.team2) : null;
+
+        const finalClass = isFinal ? 'border-2 border-yellow-500/30' : '';
+
+        return `
+            <div class="match-card p-4 ${finalClass} ${match.played ? 'winner-glow' : ''}">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex-1 flex items-center justify-end gap-2">
+                        ${team1 ? `
+                            <span class="font-bold text-sm">${team1.name}</span>
+                            <div class="team-badge" style="background:${team1.color}">${team1.short}</div>
+                        ` : '<span class="text-gray-500 text-sm">في الانتظار</span>'}
+                    </div>
+                    
+                    <div class="flex items-center gap-2 mx-2">
+                        ${team1 && team2 ? `
+                            <input type="number" min="0" max="20" value="${match.score1 !== null ? match.score1 : ''}" 
+                                class="score-input" id="ko-score1-${stage}-${idx}" placeholder="-" ${isAdmin() ? '' : 'disabled'}>
+                            <span class="text-gray-500 font-bold">:</span>
+                            <input type="number" min="0" max="20" value="${match.score2 !== null ? match.score2 : ''}" 
+                                class="score-input" id="ko-score2-${stage}-${idx}" placeholder="-" ${isAdmin() ? '' : 'disabled'}>
+                        ` : '<span class="text-gray-500">vs</span>'}
+                    </div>
+
+                    <div class="flex-1 flex items-center gap-2">
+                        ${team2 ? `
+                            <div class="team-badge" style="background:${team2.color}">${team2.short}</div>
+                            <span class="font-bold text-sm">${team2.name}</span>
+                        ` : '<span class="text-gray-500 text-sm">في الانتظار</span>'}
+                    </div>
+                </div>
+                
+                ${team1 && team2 && !match.played ? (isAdmin() ? `
+                    <div class="flex justify-center mt-3">
+                        <button onclick="saveKnockoutMatch('${stage}', ${idx})" class="btn-success px-6 py-1.5 rounded-lg text-xs font-bold">
+                            💾 حفظ النتيجة
+                        </button>
+                    </div>
+                ` : `
+                    <div class="admin-lock-note rounded-xl px-3 py-2 text-center text-xs font-bold mt-3">
+                        🔒 حفظ نتائج الإقصائيات للمدير فقط
+                    </div>
+                `) : ''}
+                ${match.played ? '<p class="text-center text-green-400 text-xs mt-2">✅ انتهت</p>' : ''}
+            </div>`;
+    }
+
+    function saveKnockoutMatch(stage, idx) {
+        if (!requireAdmin()) return;
+        const score1 = parseInt(document.getElementById(`ko-score1-${stage}-${idx}`).value);
+        const score2 = parseInt(document.getElementById(`ko-score2-${stage}-${idx}`).value);
+
+        if (isNaN(score1) || isNaN(score2)) {
+            alert('يرجى إدخال النتيجة كاملة');
+            return;
+        }
+
+        if (score1 === score2) {
+            alert('لا يمكن التعادل في الأدوار الإقصائية! يجب أن يكون هناك فائز.');
+            return;
+        }
+
+        const ko = tournament.knockoutMatches;
+
+        if (stage === 'qf') {
+            ko.quarterFinals[idx].score1 = score1;
+            ko.quarterFinals[idx].score2 = score2;
+            ko.quarterFinals[idx].played = true;
+
+            const winnerId = score1 > score2 ? ko.quarterFinals[idx].team1 : ko.quarterFinals[idx].team2;
+            const loserId = score1 > score2 ? ko.quarterFinals[idx].team2 : ko.quarterFinals[idx].team1;
+
+            // QF0 & QF1 winners go to SF0, QF2 & QF3 winners go to SF1
+            if (idx === 0) ko.semiFinals[0].team1 = winnerId;
+            if (idx === 1) ko.semiFinals[0].team2 = winnerId;
+            if (idx === 2) ko.semiFinals[1].team1 = winnerId;
+            if (idx === 3) ko.semiFinals[1].team2 = winnerId;
+
+        } else if (stage === 'sf') {
+            ko.semiFinals[idx].score1 = score1;
+            ko.semiFinals[idx].score2 = score2;
+            ko.semiFinals[idx].played = true;
+
+            const winnerId = score1 > score2 ? ko.semiFinals[idx].team1 : ko.semiFinals[idx].team2;
+            const loserId = score1 > score2 ? ko.semiFinals[idx].team2 : ko.semiFinals[idx].team1;
+
+            if (idx === 0) { ko.final.team1 = winnerId; ko.thirdPlace.team1 = loserId; }
+            if (idx === 1) { ko.final.team2 = winnerId; ko.thirdPlace.team2 = loserId; }
+
+        } else if (stage === 'tp') {
+            ko.thirdPlace.score1 = score1;
+            ko.thirdPlace.score2 = score2;
+            ko.thirdPlace.played = true;
+
+        } else if (stage === 'final') {
+            ko.final.score1 = score1;
+            ko.final.score2 = score2;
+            ko.final.played = true;
+        }
+
+        saveData();
+        renderHeroStats();
+        renderKnockout();
+    }
+
+    // ============ SQUADS ============
+    function renderSquadSelect() {
+        const select = document.getElementById('squad-team-select');
+        let html = '<option value="" class="bg-gray-800">اختر فريق...</option>';
+        tournament.teams.forEach(team => {
+            html += `<option value="${team.id}" class="bg-gray-800">${team.name} (المجموعة ${team.group})</option>`;
+        });
+        select.innerHTML = html;
+    }
+
+    function showSquad(teamId) {
+        if (!teamId) return;
+        teamId = parseInt(teamId);
+        const team = getTeam(teamId);
+        const squad = tournament.squads[teamId] || [];
+        const container = document.getElementById('squad-content');
+
+        if (!team) return;
+
+        const starters = squad.filter(p => !p.substitute);
+        const subs = squad.filter(p => p.substitute);
+
+        // Formation visualization
+        const gk = starters.filter(p => p.position === 'GK');
+        const defs = starters.filter(p => p.position === 'DEF');
+        const mids = starters.filter(p => p.position === 'MID');
+        const fwds = starters.filter(p => p.position === 'FWD');
+
+        let html = `
+            <div class="glass-card rounded-2xl overflow-hidden mb-6">
+                <div class="p-5 flex items-center gap-3" style="background: linear-gradient(135deg, ${team.color}40, ${team.color}10);">
+                    <div class="team-badge" style="background:${team.color}; width:60px; height:60px; font-size:22px;">${team.short}</div>
+                    <div>
+                        <h3 class="text-2xl font-black">${team.name}</h3>
+                        <p class="text-gray-400">المجموعة ${team.group} • التشكيلة: ${team.formationName || '4-4-2'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Field -->
+            <div class="glass-card rounded-2xl p-4 mb-6">
+                <h4 class="font-bold mb-3 text-lg">📐 التشكيلة</h4>
+                <div class="formation-field mx-auto" style="width:100%; max-width:400px; height:500px; position:relative;">
+                    <!-- Field markings -->
+                    <div style="position:absolute; top:48%; left:10%; right:10%; height:2px; background:rgba(255,255,255,0.2);"></div>
+                    <div style="position:absolute; top:10%; left:25%; right:25%; bottom:80%; border:2px solid rgba(255,255,255,0.2); border-top:none;"></div>
+                    <div style="position:absolute; bottom:10%; left:25%; right:25%; top:80%; border:2px solid rgba(255,255,255,0.2); border-bottom:none;"></div>
+                    
+                    <!-- GK -->
+                    ${gk.map((p, i) => `
+                        <div class="field-player position-gk" style="bottom:3%; left:50%; transform:translateX(-50%);" title="${p.name}">
+                            <div class="text-center">
+                                <div class="text-xs font-bold">${p.number}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+
+                    <!-- Defenders -->
+                    ${defs.map((p, i) => {
+                        const positions = defs.length === 4 ? [15, 35, 55, 75] : [20, 40, 60];
+                        return `
+                            <div class="field-player position-def" style="bottom:22%; left:${positions[i] + 5}%; transform:translateX(-50%);" title="${p.name}">
+                                <div class="text-center">
+                                    <div class="text-xs font-bold">${p.number}</div>
+                                </div>
+                            </div>`;
+                    }).join('')}
+
+                    <!-- Midfielders -->
+                    ${mids.map((p, i) => {
+                        const positions = mids.length === 4 ? [15, 35, 55, 75] : [20, 40, 60];
+                        return `
+                            <div class="field-player position-mid" style="bottom:45%; left:${positions[i] + 5}%; transform:translateX(-50%);" title="${p.name}">
+                                <div class="text-center">
+                                    <div class="text-xs font-bold">${p.number}</div>
+                                </div>
+                            </div>`;
+                    }).join('')}
+
+                    <!-- Forwards -->
+                    ${fwds.map((p, i) => {
+                        const positions = fwds.length === 2 ? [30, 60] : fwds.length === 3 ? [20, 45, 70] : [45];
+                        return `
+                            <div class="field-player position-fwd" style="bottom:68%; left:${positions[i] + 5}%; transform:translateX(-50%);" title="${p.name}">
+                                <div class="text-center">
+                                    <div class="text-xs font-bold">${p.number}</div>
+                                </div>
+                            </div>`;
+                    }).join('')}
+                </div>
+                <div class="flex justify-center gap-4 mt-3 text-xs">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full position-gk inline-block"></span> حارس</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full position-def inline-block"></span> مدافع</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full position-mid inline-block"></span> وسط</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full position-fwd inline-block"></span> مهاجم</span>
+                </div>
+            </div>
+
+            <!-- Players List -->
+            <div class="glass-card rounded-2xl overflow-hidden mb-6">
+                <div class="px-5 py-3 border-b border-white/10">
+                    <h4 class="font-bold">👥 التشكيلة الأساسية (${starters.length})</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-white/10">
+                                <th class="py-2 px-3 text-right">#</th>
+                                <th class="py-2 px-3 text-right">الاسم</th>
+                                <th class="py-2 px-3 text-center">المركز</th>
+                                <th class="py-2 px-3 text-center">⚽</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${starters.map(p => `
+                                <tr class="player-row border-b border-white/5">
+                                    <td class="py-2.5 px-3 font-bold text-gray-400">${p.number}</td>
+                                    <td class="py-2.5 px-3 font-bold">${p.name}</td>
+                                    <td class="py-2.5 px-3 text-center">
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-bold position-${p.position.toLowerCase()}">${positions[p.position]}</span>
+                                    </td>
+                                    <td class="py-2.5 px-3 text-center font-bold ${p.goals > 0 ? 'text-yellow-400' : 'text-gray-500'}">${p.goals}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            ${subs.length > 0 ? `
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="px-5 py-3 border-b border-white/10">
+                        <h4 class="font-bold">🔄 البدلاء (${subs.length})</h4>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-white/10">
+                                    <th class="py-2 px-3 text-right">#</th>
+                                    <th class="py-2 px-3 text-right">الاسم</th>
+                                    <th class="py-2 px-3 text-center">المركز</th>
+                                    <th class="py-2 px-3 text-center">⚽</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${subs.map(p => `
+                                    <tr class="player-row border-b border-white/5 opacity-70">
+                                        <td class="py-2.5 px-3 font-bold text-gray-400">${p.number}</td>
+                                        <td class="py-2.5 px-3 font-bold">${p.name}</td>
+                                        <td class="py-2.5 px-3 text-center">
+                                            <span class="px-2 py-0.5 rounded-full text-xs font-bold position-${p.position.toLowerCase()}">${positions[p.position]}</span>
+                                        </td>
+                                        <td class="py-2.5 px-3 text-center font-bold ${p.goals > 0 ? 'text-yellow-400' : 'text-gray-500'}">${p.goals}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ` : ''}`;
+
+        container.innerHTML = html;
+    }
+
+    // ============ TOP SCORERS ============
+    function renderScorers() {
+        const container = document.getElementById('scorers-content');
+        
+        // Collect all players with goals
+        const allScorers = [];
+        Object.keys(tournament.squads).forEach(teamId => {
+            const team = getTeam(parseInt(teamId));
+            tournament.squads[teamId].forEach(player => {
+                if (player.goals > 0) {
+                    allScorers.push({
+                        ...player,
+                        team: team
+                    });
+                }
+            });
+        });
+
+        allScorers.sort((a, b) => b.goals - a.goals);
+        const maxGoals = allScorers.length > 0 ? allScorers[0].goals : 0;
+
+        // Team stats
+        const teamGoals = {};
+        tournament.teams.forEach(t => { teamGoals[t.id] = 0; });
+        
+        // Count goals from matches
+        tournament.matches.filter(m => m.played).forEach(m => {
+            teamGoals[m.team1] = (teamGoals[m.team1] || 0) + m.score1;
+            teamGoals[m.team2] = (teamGoals[m.team2] || 0) + m.score2;
+        });
+
+        const teamGoalsList = Object.entries(teamGoals)
+            .map(([id, goals]) => ({ team: getTeam(parseInt(id)), goals }))
+            .filter(t => t.goals > 0)
+            .sort((a, b) => b.goals - a.goals);
+
+        const maxTeamGoals = teamGoalsList.length > 0 ? teamGoalsList[0].goals : 0;
+
+        let html = `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Top Scorers -->
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="px-5 py-3 bg-gradient-to-r from-yellow-600/30 to-orange-600/30 border-b border-white/10">
+                        <h3 class="font-black text-lg">🥇 ترتيب الهدافين</h3>
+                    </div>
+                    <div class="p-4">
+                        ${allScorers.length === 0 ? '<p class="text-gray-500 text-center py-8">لا توجد أهداف مسجلة بعد</p>' : ''}
+                        ${allScorers.slice(0, 15).map((scorer, idx) => `
+                            <div class="flex items-center gap-3 py-3 ${idx > 0 ? 'border-t border-white/5' : ''}">
+                                <span class="font-black text-lg w-8 text-center ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-300' : idx === 2 ? 'text-amber-600' : 'text-gray-500'}">${idx + 1}</span>
+                                <div class="team-badge" style="background:${scorer.team.color}; width:30px; height:30px; font-size:10px;">${scorer.team.short}</div>
+                                <div class="flex-1">
+                                    <p class="font-bold text-sm">${scorer.name}</p>
+                                    <p class="text-xs text-gray-400">${scorer.team.name} • ${positions[scorer.position]}</p>
+                                    <div class="mt-1 bg-white/5 rounded-full h-2 overflow-hidden">
+                                        <div class="top-scorer-bar" style="width:${(scorer.goals / maxGoals * 100)}%"></div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-2xl font-black ${idx === 0 ? 'text-yellow-400' : ''}">${scorer.goals}</span>
+                                    <p class="text-xs text-gray-500">هدف</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Team Goals -->
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="px-5 py-3 bg-gradient-to-r from-blue-600/30 to-purple-600/30 border-b border-white/10">
+                        <h3 class="font-black text-lg">📊 أهداف الفرق</h3>
+                    </div>
+                    <div class="p-4">
+                        ${teamGoalsList.length === 0 ? '<p class="text-gray-500 text-center py-8">لا توجد أهداف مسجلة بعد</p>' : ''}
+                        ${teamGoalsList.map((item, idx) => `
+                            <div class="flex items-center gap-3 py-3 ${idx > 0 ? 'border-t border-white/5' : ''}">
+                                <span class="font-bold w-6 text-center text-gray-500">${idx + 1}</span>
+                                <div class="team-badge" style="background:${item.team.color}; width:35px; height:35px; font-size:11px;">${item.team.short}</div>
+                                <div class="flex-1">
+                                    <p class="font-bold text-sm">${item.team.name}</p>
+                                    <div class="mt-1 bg-white/5 rounded-full h-2 overflow-hidden">
+                                        <div class="h-full rounded-full transition-all" style="width:${(item.goals / maxTeamGoals * 100)}%; background:${item.team.color};"></div>
+                                    </div>
+                                </div>
+                                <span class="text-xl font-black">${item.goals}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <div class="glass-card rounded-xl p-4 text-center">
+                    <div class="text-3xl mb-1">⚽</div>
+                    <p class="text-2xl font-black">${Object.values(teamGoals).reduce((a, b) => a + b, 0)}</p>
+                    <p class="text-xs text-gray-400">إجمالي الأهداف</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 text-center">
+                    <div class="text-3xl mb-1">📊</div>
+                    <p class="text-2xl font-black">${tournament.matches.filter(m => m.played).length > 0 ? (Object.values(teamGoals).reduce((a, b) => a + b, 0) / tournament.matches.filter(m => m.played).length).toFixed(1) : '0'}</p>
+                    <p class="text-xs text-gray-400">معدل الأهداف</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 text-center">
+                    <div class="text-3xl mb-1">🏟️</div>
+                    <p class="text-2xl font-black">${tournament.matches.filter(m => m.played).length}</p>
+                    <p class="text-xs text-gray-400">مباريات لعبت</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 text-center">
+                    <div class="text-3xl mb-1">🥅</div>
+                    <p class="text-2xl font-black">${allScorers.length}</p>
+                    <p class="text-xs text-gray-400">هدافين</p>
+                </div>
+            </div>`;
+
+        container.innerHTML = html;
+    }
+
+
+    // ============ ADMIN PANEL ============
+    function renderAdminStatus() {
+        const btn = document.getElementById('admin-status-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        if (btn) btn.textContent = isAdmin() ? '👑 المدير متصل' : '👑 دخول المدير';
+        if (resetBtn) resetBtn.classList.toggle('hidden', !isAdmin());
+    }
+
+    function loginAdmin() {
+        const email = (document.getElementById('admin-email')?.value || '').trim().toLowerCase();
+        const code = (document.getElementById('admin-code')?.value || '').trim();
+        const error = document.getElementById('admin-login-error');
+        if (email === ADMIN_EMAIL.toLowerCase() && code === ADMIN_CODE) {
+            localStorage.setItem('tournamentAdminLogged', 'yes');
+            renderAdminStatus();
+            renderAdminPanel();
+            renderAll();
+            alert('تم دخول المدير بنجاح');
+        } else if (error) {
+            error.textContent = 'الإيميل أو الكود غير صحيح';
+        }
+    }
+
+    function logoutAdmin() {
+        localStorage.removeItem('tournamentAdminLogged');
+        renderAdminStatus();
+        renderAll();
+        showTab('groups');
+    }
+
+    function renderAdminPanel() {
+        const container = document.getElementById('admin-content');
+        if (!container) return;
+
+        if (!isAdmin()) {
+            container.innerHTML = `
+                <div class="max-w-md mx-auto glass-card rounded-3xl p-6">
+                    <div class="text-center mb-5">
+                        <div class="text-5xl mb-2">👑</div>
+                        <h3 class="text-2xl font-black gradient-gold">صفحة المدير</h3>
+                        <p class="text-gray-400 text-sm mt-2">أدخل الإيميل والكود للتحكم في البطولة</p>
+                    </div>
+                    <label class="text-sm font-bold text-gray-300">إيميل المدير</label>
+                    <input id="admin-email" type="email" class="admin-input mt-2 mb-4" placeholder="client@gmail.com" autocomplete="username">
+                    <label class="text-sm font-bold text-gray-300">كود المدير</label>
+                    <input id="admin-code" type="password" class="admin-input mt-2 mb-3" placeholder="1234" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
+                    <p id="admin-login-error" class="text-red-300 text-sm font-bold min-h-[24px]"></p>
+                    <button onclick="loginAdmin()" class="btn-success w-full rounded-2xl py-3 font-black mt-2">دخول المدير</button>
+                    <div class="admin-lock-note rounded-2xl p-3 text-sm mt-4 text-center">
+                        🔒 الزوار يشاهدون فقط، والتعديل محفوظ للمدير.
+                    </div>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+                <div>
+                    <h3 class="text-2xl md:text-3xl font-black gradient-gold">👑 لوحة تحكم المدير</h3>
+                    <p class="text-gray-400 text-sm mt-1">تعديل الأندية، أسماء التشكيلات، اللاعبين، النتائج، الإعلان، وملف PDF.</p>
+                </div>
+                <button onclick="logoutAdmin()" class="btn-danger px-5 py-2.5 rounded-2xl font-bold">خروج المدير ✕</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">👥</div><p class="text-2xl font-black">${tournament.teams.length}</p><p class="text-xs text-gray-400">الأندية</p></div>
+                <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">🏟️</div><p class="text-2xl font-black">${tournament.matches.length}</p><p class="text-xs text-gray-400">المباريات</p></div>
+                <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">⚽</div><p class="text-2xl font-black">${tournament.matches.filter(m => m.played).length}</p><p class="text-xs text-gray-400">نتائج محفوظة</p></div>
+                <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">📢</div><p class="text-2xl font-black">${(tournament.ads || []).filter(a => a.active !== false).length}</p><p class="text-xs text-gray-400">إعلان</p></div>
+                <div class="glass-card rounded-2xl p-4 text-center"><div class="text-3xl">🔐</div><p class="text-xl font-black">نشط</p><p class="text-xs text-gray-400">صلاحية المدير</p></div>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden mb-6">
+                <div class="px-5 py-4 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <h4 class="text-xl font-black">📢 إعلان تحت المجموعات</h4>
+                        <p class="text-gray-400 text-sm">الإعلان يظهر فقط تحت جدول المجموعات. يمكنك إضافة صورة من الجهاز أو رابط صورة ورابط الإعلان.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="saveAdminAds()" class="btn-success px-4 py-2 rounded-xl text-sm font-bold">💾 حفظ الإعلانات</button>
+                        <button onclick="downloadTournamentPDF()" class="btn-primary px-4 py-2 rounded-xl text-sm font-bold">📄 إنشاء PDF</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4 p-4">
+                    ${(tournament.ads || []).map((ad, idx) => `
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <h5 class="font-black text-yellow-200">إعلان تحت المجموعات</h5>
+                                <label class="text-xs text-gray-300 flex items-center gap-2">
+                                    <input id="admin-ad-active-${ad.id}" type="checkbox" ${ad.active !== false ? 'checked' : ''}>
+                                    نشط
+                                </label>
+                            </div>
+                            <label class="text-xs font-bold text-gray-300">عنوان الإعلان</label>
+                            <input id="admin-ad-title-${ad.id}" class="admin-input mt-1 mb-3" value="${escapeAttr(ad.title || '')}" placeholder="عنوان الإعلان">
+                            <label class="text-xs font-bold text-gray-300">نص الإعلان</label>
+                            <textarea id="admin-ad-text-${ad.id}" class="admin-input mt-1 mb-3 min-h-[86px]" placeholder="اكتب تفاصيل الإعلان">${escapeHtml(ad.text || '')}</textarea>
+                            <label class="text-xs font-bold text-gray-300">صورة الإعلان</label>
+                            <input id="admin-ad-image-${ad.id}" class="admin-input mt-1 mb-2" value="${escapeAttr(ad.image || '')}" placeholder="رابط الصورة أو سيتم ملؤه بعد رفع صورة">
+                            <input type="file" accept="image/*" onchange="handleAdImageUpload(event, '${ad.id}')" class="admin-input mt-1 mb-2 text-sm">
+                            <div id="admin-ad-preview-${ad.id}" class="mb-3">${ad.image ? `<img src="${escapeAttr(ad.image)}" class="ad-image" alt="معاينة الإعلان">` : `<div class="ad-image flex items-center justify-center text-3xl">📢</div>`}</div>
+                            <label class="text-xs font-bold text-gray-300">رابط الإعلان اختياري</label>
+                            <input id="admin-ad-link-${ad.id}" class="admin-input mt-1" value="${escapeAttr(ad.link || '')}" placeholder="https://... أو رقم/رابط واتساب">
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden mb-6">
+                <div class="px-5 py-4 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <h4 class="text-xl font-black">🏟️ تعديل الأندية</h4>
+                        <p class="text-gray-400 text-sm">غيّر اسم النادي، الاختصار، المجموعة واللون.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="saveAdminTeams()" class="btn-success px-4 py-2 rounded-xl text-sm font-bold">💾 حفظ الأندية</button>
+                        <button onclick="regenerateMatchesFromAdmin()" class="btn-primary px-4 py-2 rounded-xl text-sm font-bold">🔁 إعادة إنشاء المباريات</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto p-4">
+                    <table class="w-full text-sm min-w-[720px]">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-white/10">
+                                <th class="py-3 px-2 text-right">#</th>
+                                <th class="py-3 px-2 text-right">اسم النادي</th>
+                                <th class="py-3 px-2 text-right">اختصار</th>
+                                <th class="py-3 px-2 text-center">المجموعة</th>
+                                <th class="py-3 px-2 text-center">اللون</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tournament.teams.map((team, idx) => `
+                                <tr class="border-b border-white/5">
+                                    <td class="py-2 px-2 font-bold text-gray-400">${idx + 1}</td>
+                                    <td class="py-2 px-2"><input id="admin-team-name-${team.id}" class="admin-input" value="${escapeAttr(team.name)}"></td>
+                                    <td class="py-2 px-2"><input id="admin-team-short-${team.id}" class="admin-input" value="${escapeAttr(team.short)}" maxlength="5"></td>
+                                    <td class="py-2 px-2">
+                                        <select id="admin-team-group-${team.id}" class="admin-input">
+                                            ${['A','B','C','D'].map(g => `<option value="${g}" ${team.group === g ? 'selected' : ''}>${g}</option>`).join('')}
+                                        </select>
+                                    </td>
+                                    <td class="py-2 px-2 text-center"><input id="admin-team-color-${team.id}" type="color" value="${team.color}" class="w-14 h-10 rounded-xl bg-transparent border-0"></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <h4 class="text-xl font-black">👥 أسماء التشكيلة واللاعبين</h4>
+                        <p class="text-gray-400 text-sm">اختر النادي، ثم عدّل اسم التشكيلة وأسماء اللاعبين والمراكز.</p>
+                    </div>
+                    <select id="admin-squad-team-select" onchange="renderAdminSquadEditor(this.value)" class="admin-input md:max-w-xs">
+                        <option value="">اختر النادي...</option>
+                        ${tournament.teams.map(team => `<option value="${team.id}">${team.name} - المجموعة ${team.group}</option>`).join('')}
+                    </select>
+                </div>
+                <div id="admin-squad-editor" class="p-4">
+                    <p class="text-center text-gray-500 py-8">اختر نادي لتعديل التشكيلة.</p>
+                </div>
+            </div>`;
+    }
+
+    function escapeAttr(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('"', '&quot;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;');
+    }
+
+
+    function handleAdImageUpload(event, adId) {
+        if (!requireAdmin()) return;
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('يرجى اختيار صورة فقط');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            const input = document.getElementById(`admin-ad-image-${adId}`);
+            const preview = document.getElementById(`admin-ad-preview-${adId}`);
+            if (input) input.value = dataUrl;
+            if (preview) preview.innerHTML = `<img src="${dataUrl}" class="ad-image" alt="معاينة الإعلان">`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function saveAdminAds() {
+        if (!requireAdmin()) return;
+        if (!Array.isArray(tournament.ads) || tournament.ads.length === 0) tournament.ads = JSON.parse(JSON.stringify(defaultAds));
+        tournament.ads = tournament.ads.filter(ad => ad.id === 'groups');
+        if (tournament.ads.length === 0) tournament.ads = JSON.parse(JSON.stringify(defaultAds));
+        tournament.ads.forEach(ad => {
+            const title = document.getElementById(`admin-ad-title-${ad.id}`)?.value.trim();
+            const body = document.getElementById(`admin-ad-text-${ad.id}`)?.value.trim();
+            const image = document.getElementById(`admin-ad-image-${ad.id}`)?.value.trim();
+            const link = document.getElementById(`admin-ad-link-${ad.id}`)?.value.trim();
+            const active = document.getElementById(`admin-ad-active-${ad.id}`)?.checked;
+            ad.title = title || 'مساحة إعلان';
+            ad.text = body || 'ضع إعلانك هنا';
+            ad.image = image || '';
+            ad.link = link || '';
+            ad.active = !!active;
+        });
+        saveData();
+        renderAds();
+        renderAdminPanel();
+        alert('تم حفظ الإعلانات');
+    }
+
+    function saveAdminTeams() {
+        if (!requireAdmin()) return;
+        tournament.teams.forEach(team => {
+            const name = document.getElementById(`admin-team-name-${team.id}`)?.value.trim();
+            const short = document.getElementById(`admin-team-short-${team.id}`)?.value.trim();
+            const group = document.getElementById(`admin-team-group-${team.id}`)?.value;
+            const color = document.getElementById(`admin-team-color-${team.id}`)?.value;
+            if (name) team.name = name;
+            if (short) team.short = short.toUpperCase();
+            if (group) team.group = group;
+            if (color) team.color = color;
+            team.formationName = team.formationName || '4-4-2';
+        });
+        saveData();
+        renderAll();
+        showTab('admin');
+        alert('تم حفظ بيانات الأندية');
+    }
+
+    function regenerateMatchesFromAdmin() {
+        if (!requireAdmin()) return;
+        if (!confirm('سيتم حذف نتائج المجموعات والإقصائيات والهدافين المرتبطين بالمباريات. هل تريد المتابعة؟')) return;
+        tournament.matches = [];
+        tournament.knockoutMatches = { quarterFinals: [], semiFinals: [], final: null, thirdPlace: null };
+        Object.keys(tournament.squads).forEach(teamId => {
+            tournament.squads[teamId].forEach(player => { player.goals = 0; });
+        });
+        generateGroupMatches();
+        saveData();
+        renderAll();
+        showTab('admin');
+        alert('تمت إعادة إنشاء مباريات المجموعات');
+    }
+
+    function renderAdminSquadEditor(teamId) {
+        if (!requireAdmin()) return;
+        const container = document.getElementById('admin-squad-editor');
+        if (!container) return;
+        if (!teamId) {
+            container.innerHTML = '<p class="text-center text-gray-500 py-8">اختر نادي لتعديل التشكيلة.</p>';
+            return;
+        }
+        teamId = parseInt(teamId);
+        const team = getTeam(teamId);
+        const squad = tournament.squads[teamId] || [];
+        if (!team) return;
+
+        container.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="md:col-span-2">
+                    <label class="text-sm font-bold text-gray-300">اسم التشكيلة / الخطة</label>
+                    <input id="admin-formation-name-${team.id}" class="admin-input mt-2" value="${escapeAttr(team.formationName || '4-4-2')}" placeholder="مثال: 4-4-2 أو التشكيلة الأساسية">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="saveAdminSquad(${team.id})" class="btn-success w-full rounded-2xl py-3 font-black">💾 حفظ التشكيلة</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm min-w-[760px]">
+                    <thead>
+                        <tr class="text-gray-400 border-b border-white/10">
+                            <th class="py-3 px-2 text-right">الرقم</th>
+                            <th class="py-3 px-2 text-right">اسم اللاعب</th>
+                            <th class="py-3 px-2 text-center">المركز</th>
+                            <th class="py-3 px-2 text-center">النوع</th>
+                            <th class="py-3 px-2 text-center">أهداف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${squad.map((player, idx) => `
+                            <tr class="border-b border-white/5">
+                                <td class="py-2 px-2"><input id="admin-player-number-${player.id}" type="number" min="1" class="admin-input" value="${player.number}"></td>
+                                <td class="py-2 px-2"><input id="admin-player-name-${player.id}" class="admin-input" value="${escapeAttr(player.name)}"></td>
+                                <td class="py-2 px-2">
+                                    <select id="admin-player-position-${player.id}" class="admin-input">
+                                        ${Object.keys(positions).map(pos => `<option value="${pos}" ${player.position === pos ? 'selected' : ''}>${positions[pos]}</option>`).join('')}
+                                    </select>
+                                </td>
+                                <td class="py-2 px-2">
+                                    <select id="admin-player-sub-${player.id}" class="admin-input">
+                                        <option value="0" ${player.substitute ? '' : 'selected'}>أساسي</option>
+                                        <option value="1" ${player.substitute ? 'selected' : ''}>بديل</option>
+                                    </select>
+                                </td>
+                                <td class="py-2 px-2 text-center font-black ${player.goals > 0 ? 'text-yellow-400' : 'text-gray-500'}">${player.goals || 0}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    }
+
+    function saveAdminSquad(teamId) {
+        if (!requireAdmin()) return;
+        const team = getTeam(teamId);
+        const squad = tournament.squads[teamId] || [];
+        if (!team) return;
+        const formation = document.getElementById(`admin-formation-name-${team.id}`)?.value.trim();
+        team.formationName = formation || '4-4-2';
+        squad.forEach(player => {
+            const number = parseInt(document.getElementById(`admin-player-number-${player.id}`)?.value);
+            const name = document.getElementById(`admin-player-name-${player.id}`)?.value.trim();
+            const position = document.getElementById(`admin-player-position-${player.id}`)?.value;
+            const sub = document.getElementById(`admin-player-sub-${player.id}`)?.value;
+            if (!isNaN(number)) player.number = number;
+            if (name) player.name = name;
+            if (position) player.position = position;
+            player.substitute = sub === '1';
+        });
+        saveData();
+        renderAll();
+        showTab('admin');
+        const select = document.getElementById('admin-squad-team-select');
+        if (select) select.value = String(teamId);
+        renderAdminSquadEditor(teamId);
+        alert('تم حفظ أسماء التشكيلة واللاعبين');
+    }
+
+    // ============ MODAL ============
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+    }
+
+    // Close modals on overlay click
+    document.getElementById('modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    document.getElementById('goal-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeGoalModal();
+    });
+
+    // Initialize
+    init();
+    </script>
+
+</body>
+</html>
